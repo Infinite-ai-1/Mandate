@@ -1,1 +1,21 @@
+# Person 1 area (universe.py, ingest/, evidence.py, sources.py)
+pandas
+lxml
+html5lib
+beautifulsoup4
+requests
+edgartools
+yfinance
+rapidfuzz
+pyarrow
+python-dotenv
+
+# Person 2 area (agents/, verify.py, pipeline.py, api.py) -- not yet used by Person 1 code
 openai==2.36.0
+anthropic
+pydantic
+flask
+flask-cors
+
+# Person 3 area (quant/)
+PyPortfolioOpt
