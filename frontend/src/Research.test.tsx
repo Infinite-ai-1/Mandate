@@ -15,7 +15,7 @@ it.each(scenarios)("uses the normal research cards and allocation form for $tick
   const report = {simulated:true,devils_advocate:scenario.challenges,
     melchior:{ticker,agent:'melchior',model:'Scripted demo',verdicts:[{rule_id:'DEMO-R1', verdict,confidence:0,quote:scenario.notes[0],source_id:ticker+'-ASSUMPTION',reason:scenario.notes[0],verified:verdict!=='FLAG'}]},
     balthasar:specialist('balthasar',1),casper:specialist('casper',2),
-    decision:{ticker,decision:scenario.decision,cap:scenario.cap/100,decided_by:'chair',reason:scenario.reason,source_ids:[],weighted_score:null}};
+    decision:{ticker,name:scenario.name,decision:scenario.decision,cap:scenario.cap/100,decided_by:'chair',reason:scenario.reason,source_ids:[],weighted_score:null}};
   vi.stubGlobal('fetch',vi.fn(async (path:string) => {
     const payload=path.endsWith('/refresh') ? {job_id:'demo-job'} : path.includes('/jobs/') ? {status:'done',progress:['[melchior:done] Simulated ethics review'],result:null,error:null} : path.endsWith('/investment-quote') ? {
       ticker,policy_revision:0,available_usd:100000,maximum_usd:scenario.cap*1000,suggested_usd:approved?1000:0,price:100,buy_allowed:approved,confidence_score:null,confidence_definition:'Demo assumptions',reason:scenario.reason,blocked_reason:approved?null:'Scenario does not permit an allocation.'

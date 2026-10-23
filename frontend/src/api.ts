@@ -36,10 +36,11 @@ export interface Selection {
   universe_size: number;
   after_prefilter: number;
   excluded_by_sic: { ticker: string; sic: string; rule_id: string }[];
-  selected: { ticker: string; why: string }[];
+  selected: { ticker: string; name: string; why: string }[];
 }
 export interface Decision {
   ticker: string;
+  name: string;
   decision: DecisionKind;
   cap: number;
   decided_by: "code_veto" | "prefilter" | "chair";
@@ -144,7 +145,7 @@ export interface Account {
   invested_usd: number;
   presentation: Presentation;
   chart: { ticker: string; usd: number; weight: number }[];
-  to_verify: { ticker: string; reason: string }[];
+  to_verify: { ticker: string; name: string; reason: string }[];
 }
 export interface InvestmentQuote {
   ticker: string;
@@ -231,7 +232,7 @@ const strings = (x: unknown) => array(x, str);
 const fields = (x: unknown, keys: string[], test: (x: unknown) => boolean) =>
   obj(x) && keys.every((k) => test(x[k]));
 const decision = (x: unknown) =>
-  fields(x, ["ticker", "decision", "decided_by", "reason"], str) &&
+  fields(x, ["ticker", "name", "decision", "decided_by", "reason"], str) &&
   fields(x, ["cap"], num) &&
   obj(x) &&
   strings(x.source_ids) &&
@@ -310,7 +311,7 @@ export function validatePayload(
         data.chart,
         (c) => fields(c, ["ticker"], str) && fields(c, ["usd", "weight"], num),
       ) &&
-      array(data.to_verify, (v) => fields(v, ["ticker", "reason"], str))
+      array(data.to_verify, (v) => fields(v, ["ticker", "name", "reason"], str))
     );
   if (path.endsWith("/investment-quote"))
     return (
@@ -375,7 +376,7 @@ export function validatePayload(
       obj(data) &&
       str(data.charity_id) &&
       fields(data, ["universe_size", "after_prefilter"], num) &&
-      array(data.selected, (x) => fields(x, ["ticker", "why"], str)) &&
+      array(data.selected, (x) => fields(x, ["ticker", "name", "why"], str)) &&
       array(data.excluded_by_sic, (x) =>
         fields(x, ["ticker", "sic", "rule_id"], str),
       )

@@ -348,7 +348,7 @@ function Rejected({
     <article className="rejection">
       <div className="row between">
         <button className="ticker" onClick={() => company(decision.ticker)}>
-          {decision.ticker} ↗
+          {decision.ticker} · {decision.name} ↗
         </button>
         <Badge>{chairLabel[decision.decided_by]}</Badge>
       </div>
@@ -1367,7 +1367,7 @@ export default function App() {
                               onClick={() => setCompany(s.ticker)}
                               title={s.why}
                             >
-                              {s.ticker}
+                              {s.ticker} · {s.name}
                             </button>
                           ))}
                         </div>
@@ -1674,7 +1674,7 @@ export default function App() {
                         className="ticker"
                         onClick={() => setCompany(item.ticker)}
                       >
-                        {item.ticker} · Held stock needs review ↗
+                        {item.ticker} · {item.name} · Held stock needs review ↗
                       </button>
                       <p>{item.reason}</p>
                       <p>
@@ -1689,7 +1689,7 @@ export default function App() {
                         className="ticker"
                         onClick={() => setCompany(d.ticker)}
                       >
-                        {d.ticker} ↗
+                        {d.ticker} · {d.name} ↗
                       </button>
                       <p>{d.reason}</p>
                       <Chips ids={d.source_ids} open={setSource} />

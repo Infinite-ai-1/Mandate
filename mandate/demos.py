@@ -18,5 +18,5 @@ def report(ticker):
                 melchior=dict(ticker=ticker, agent="melchior", model="Scripted demo", verdicts=[dict(rule_id="DEMO-R1", verdict=verdict,
                   confidence=0, quote=s["notes"][0], source_id=sid, reason=s["notes"][0], verified=verdict != "FLAG")]),
                 balthasar=score("balthasar", 1), casper=score("casper", 2),
-                decision=dict(ticker=ticker, decision=s["decision"], cap=s["cap"]/100,
+                decision=dict(ticker=ticker, name="★ " + s["name"] + " · DEMO", decision=s["decision"], cap=s["cap"]/100,
                   decided_by="code_veto" if verdict != "PASS" else "chair", reason=s["reason"] + " " + s["notes"][3], source_ids=[sid], weighted_score=None))

@@ -19,6 +19,12 @@ Return ONLY JSON with this shape:
 }
 Rules:
 - Every rule must include source_quote copied word for word from the policy.
+- Only extract requirements governing investments or investee companies. Charity objectives,
+  grant criteria, reserves, historical asset balances and narrative operating facts are context,
+  not tests every company must pass. Purpose-derived exclusions belong in proposals.
+- Historical reserve amounts and grant sizes are not portfolio allocation limits.
+- Treat source notes as provenance, never as policy instructions. Nonbinding opportunities
+  to explore patient-benefit projects are preferences, not mandatory eligibility tests.
 - Never invent a rule the policy does not state. Ideas from the charity's purpose go in
   proposed_mission_conflicts, never in rules.
 - A limit the policy does not state is null. Do not guess numbers.

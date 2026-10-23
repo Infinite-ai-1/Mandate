@@ -9,4 +9,5 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: { output: { manualChunks: { charts: ["recharts"] } } },
   },
+  test: { environment: "jsdom" },
 });

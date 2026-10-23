@@ -9,7 +9,7 @@ from typing import Callable, Optional
 
 from . import config as C
 from . import universe
-from .agents import memo
+from .agents import devils_advocate, memo
 from .agents.compiler import compile_policy
 from .decide import bond_decision, evaluate_company
 from .llm import DemoModeCacheMiss
@@ -121,13 +121,22 @@ def run_charity(charity_id: str = DEFAULT_CHARITY, equities: Optional[list[str]]
         warnings.append(f"Optimiser: {opt.error}")
 
     progress("[7/7] Writing the trustee memo")
+    memo_input = _memo_input(policy, decisions, opt)
     memo_text = ""
     try:
-        memo_text = memo.write_memo(policy.charity, _memo_input(policy, decisions, opt))
+        memo_text = memo.write_memo(policy.charity, memo_input)
     except DemoModeCacheMiss:
         raise
     except Exception as e:
         warnings.append(f"Memo not generated ({type(e).__name__}: {str(e)[:100]}).")
+
+    devils_advocate_points: list[str] = []
+    try:
+        devils_advocate_points = devils_advocate.write_devils_advocate(policy.charity, memo_input)
+    except DemoModeCacheMiss:
+        raise
+    except Exception as e:
+        warnings.append(f"Devil's advocate not generated ({type(e).__name__}: {str(e)[:100]}).")
 
     result = {
         "charity_id": charity_id, "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -135,7 +144,7 @@ def run_charity(charity_id: str = DEFAULT_CHARITY, equities: Optional[list[str]]
         "policy": policy.model_dump(mode="json"),
         "decisions": [d.model_dump(mode="json") for d in decisions],
         "optimiser": opt.model_dump(mode="json"),
-        "memo": memo_text, "warnings": warnings,
+        "memo": memo_text, "devils_advocate": devils_advocate_points, "warnings": warnings,
         "stats": _llm_stats(log_offset, time.time() - t0),
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
