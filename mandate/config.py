@@ -25,7 +25,7 @@ DEPLOY_MAI = _env("DEPLOY_MAI")
 DEPLOY_EMBED = _env("DEPLOY_EMBED")
 
 FINNHUB_API_KEY = _env("FINNHUB_API_KEY")
-EDGAR_USER_AGENT = _env("EDGAR_USER_AGENT", "Mandate Hackathon your.email@example.com")
+EDGAR_USER_AGENT = _env("EDGAR_USER_AGENT") or _env("SEC_USER_AGENT") or "Mandate Hackathon your.email@example.com"
 
 DEMO_MODE = _env("DEMO_MODE", "0") == "1"
 
