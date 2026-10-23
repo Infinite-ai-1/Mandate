@@ -4,6 +4,7 @@ import json
 from flask import jsonify, request, send_from_directory
 from quant.presentation import portfolio_summary, selection_summary
 from frontend.research_summary import research_summary
+from frontend.workspace_api import register_workspace_api
 
 DIST = Path(__file__).resolve().parent / "dist"
 
@@ -11,6 +12,7 @@ def register_frontend(app, dist=DIST):
     dist = Path(dist).resolve()
     if not (dist / "index.html").is_file():
         raise RuntimeError("Frontend build missing. Run npm run build in frontend/ first.")
+    register_workspace_api(app)
 
     @app.after_request
     def presentation_headers(response):

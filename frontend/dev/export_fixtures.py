@@ -20,6 +20,13 @@ def main():
     (Path(__file__).parent/"fixtures.json").write_text(json.dumps(snapshot,indent=2)+"\n",encoding="utf-8")
     (Path(__file__).parent/"presentation-fixtures.json").write_text(json.dumps(summaries,indent=2)+"\n",encoding="utf-8")
     (Path(__file__).parent/"research-fixtures.json").write_text(json.dumps(research,indent=2)+"\n",encoding="utf-8")
+    workspace_paths=[f"/api/charities/{cid}/account" for cid,_,_ in CHARITIES]
+    workspace_paths += [f"/api/charities/{cid}/companies/{d['ticker']}/investment-quote" for cid,_,_ in CHARITIES for d in app.config["FIXTURE_STORE"].decisions[cid]]
+    workspace={path:client.get(path).get_json() for path in workspace_paths}
+    (Path(__file__).parent/"workspace-fixtures.json").write_text(json.dumps(workspace,indent=2)+"\n",encoding="utf-8")
+    cid=CHARITIES[0][0]
+    purchase=client.post(f"/api/charities/{cid}/investments",json=dict(ticker="TEST",amount_usd=5000,policy_revision=1,request_id="export-example")).get_json()
+    (Path(__file__).parent/"purchase-fixture.json").write_text(json.dumps(purchase,indent=2)+"\n",encoding="utf-8")
     print("Exported synthetic API snapshots for all four charities.")
 
 if __name__=="__main__":main()

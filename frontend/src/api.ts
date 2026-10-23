@@ -130,6 +130,44 @@ export interface Job {
   result: Portfolio | null;
   error: string | null;
 }
+export interface PolicyDocument {
+  text: string;
+  policy_revision?: number;
+}
+export interface Account {
+  charity_id: string;
+  simulated: boolean;
+  policy_revision: number;
+  portfolio: Portfolio;
+  invested_usd: number;
+  presentation: Presentation;
+  chart: { ticker: string; usd: number; weight: number }[];
+  to_verify: { ticker: string; reason: string }[];
+}
+export interface InvestmentQuote {
+  ticker: string;
+  policy_revision: number;
+  available_usd: number;
+  maximum_usd: number;
+  suggested_usd: number;
+  price: number | null;
+  buy_allowed: boolean;
+  confidence_score: number | null;
+  confidence_definition: string;
+  reason: string;
+  blocked_reason: string | null;
+}
+export interface Purchase {
+  receipt: {
+    request_id: string;
+    ticker: string;
+    requested_usd: number;
+    spent_usd: number;
+    shares: number;
+    simulated: boolean;
+  };
+  account: Account;
+}
 export interface CompareRow {
   charity_id: string;
   decision: Decision;
@@ -158,6 +196,11 @@ export interface ResearchSummary {
 }
 
 export const paths = {
+  account: (id: string) => `/api/charities/${encodeURIComponent(id)}/account`,
+  investmentQuote: (id: string, ticker: string) =>
+    `/api/charities/${encodeURIComponent(id)}/companies/${encodeURIComponent(ticker)}/investment-quote`,
+  investments: (id: string) =>
+    `/api/charities/${encodeURIComponent(id)}/investments`,
   charities: "/api/charities",
   policy: (id: string) => `/api/charities/${encodeURIComponent(id)}/policy`,
   rules: (id: string) => `/api/charities/${encodeURIComponent(id)}/rules`,
@@ -243,7 +286,44 @@ export function validatePayload(
   data: unknown,
   post = false,
 ): boolean {
+  if (post && path.endsWith("/investments"))
+    return (
+      obj(data) &&
+      obj(data.receipt) &&
+      fields(data.receipt, ["request_id", "ticker"], str) &&
+      fields(data.receipt, ["requested_usd", "spent_usd", "shares"], num) &&
+      obj(data.account) &&
+      portfolio(data.account.portfolio)
+    );
   if (post) return obj(data) && str(data.job_id);
+  if (path.endsWith("/account"))
+    return (
+      obj(data) &&
+      portfolio(data.portfolio) &&
+      fields(data, ["charity_id"], str) &&
+      fields(data, ["invested_usd", "policy_revision"], num) &&
+      typeof data.simulated === "boolean" &&
+      obj(data.presentation) &&
+      array(
+        data.chart,
+        (c) => fields(c, ["ticker"], str) && fields(c, ["usd", "weight"], num),
+      ) &&
+      array(data.to_verify, (v) => fields(v, ["ticker", "reason"], str))
+    );
+  if (path.endsWith("/investment-quote"))
+    return (
+      obj(data) &&
+      fields(data, ["ticker", "confidence_definition", "reason"], str) &&
+      fields(
+        data,
+        ["policy_revision", "available_usd", "maximum_usd", "suggested_usd"],
+        num,
+      ) &&
+      (data.price === null || num(data.price)) &&
+      (data.confidence_score === null || num(data.confidence_score)) &&
+      typeof data.buy_allowed === "boolean" &&
+      (data.blocked_reason === null || str(data.blocked_reason))
+    );
   if (path === paths.charities)
     return array(data, (x) =>
       fields(x, ["charity_id", "name", "purpose"], str),
@@ -393,10 +473,11 @@ export async function request<T>(
       throw new Error("The API returned an unreadable response.");
     }
     if (!response.ok)
-      throw new Error(
+      throw new ApiError(
         typeof data === "object" && data && "error" in data
           ? String(data.error)
           : `Request failed (${response.status}).`,
+        response.status,
       );
     if (!validatePayload(path, data, body !== undefined))
       throw new Error(
@@ -467,7 +548,30 @@ export async function request<T>(
     signal?.removeEventListener("abort", abort);
   }
 }
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 export const api = {
+  buy: (
+    id: string,
+    body: {
+      ticker: string;
+      amount_usd: number;
+      policy_revision: number;
+      request_id: string;
+    },
+  ) => request<Purchase>(paths.investments(id), body),
+  updatePolicy: (id: string, text: string, revision: number) =>
+    request<{ job_id: string }>(paths.policy(id), {
+      text,
+      policy_revision: revision,
+    }),
   charities: (signal?: AbortSignal) =>
     request<Charity[]>(paths.charities, undefined, signal),
   addRule: (id: string, text: string) =>

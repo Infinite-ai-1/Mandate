@@ -1798,6 +1798,94 @@ button,
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
+.investment-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  border-top: 1px solid #cdd7c2;
+  border-bottom: 1px solid #cdd7c2;
+  padding: 2rem 0;
+  margin-top: 2rem;
+}
+.investment-panel h3 {
+  font:
+    1.6rem Georgia,
+    serif;
+}
+.investment-panel p {
+  font-size: 0.87rem;
+  color: #5e6b52;
+}
+.suggested-amount {
+  font:
+    2.6rem Georgia,
+    serif !important;
+  color: #3c5433 !important;
+}
+.investment-panel input {
+  background: #fffefa;
+  border: 1px solid #bac9ad;
+  padding: 0.8rem;
+  border-radius: 4px;
+}
+.investment-panel form button {
+  width: 100%;
+  padding: 0.8rem;
+}
+.investment-confidence {
+  margin-top: 1rem;
+}
+.pot-balances {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin: 1.3rem 0;
+}
+.pot-balances p {
+  font-size: 0.8rem;
+  color: #596953;
+}
+.pot-balances strong {
+  display: block;
+  font:
+    1.9rem Georgia,
+    serif;
+  color: #354c2c;
+}
+.policy-editor textarea {
+  font:
+    1rem/1.7 "Segoe UI",
+    Arial,
+    sans-serif;
+  background: #fffefa;
+  border-radius: 4px;
+  min-height: 280px;
+}
+.policy-editor p {
+  font-size: 0.86rem;
+  color: #606d56;
+  margin-top: 1rem;
+}
+.fixture-policy-note {
+  display: none;
+}
+html[data-demo="synthetic"] .fixture-policy-note {
+  display: block;
+  color: #786445;
+  font-size: 0.8rem;
+}
+@media (max-width: 850px) {
+  .investment-panel {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .pot-balances {
+    gap: 1rem;
+  }
+  .pot-balances strong {
+    font-size: 1.5rem;
+  }
+}
 .history-reasons p {
   color: #637154;
   font-size: 0.8rem;

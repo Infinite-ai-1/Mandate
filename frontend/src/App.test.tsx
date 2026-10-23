@@ -110,6 +110,7 @@ it("renders server-supplied headline and funnel totals", async () => {
     name: "Invest $100,000 (about £76,923) across 3 holdings:",
   });
   expect(screen.getByText("analysed", { exact: false })).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Rejections" }));
   await screen.findByRole("link", { name: "Open filing evidence ↗" });
 });
 it("renders all charities, source drawer, analyst cards and comparison", async () => {

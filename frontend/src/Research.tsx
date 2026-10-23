@@ -11,6 +11,8 @@ import {
   type ResearchSummary,
   type Job,
 } from "./api";
+import type { Purchase } from "./api";
+import InvestmentPanel from "./InvestmentPanel";
 
 const agents: ResearchAgent[] = ["melchior", "balthasar", "casper"];
 const names = {
@@ -66,6 +68,7 @@ export default function Research({
   onBusy,
   onComplete,
   openSource,
+  onPurchased,
 }: {
   charity: string;
   name: string;
@@ -75,6 +78,7 @@ export default function Research({
   onBusy: (busy: boolean) => void;
   onComplete: () => void;
   openSource: (id: string) => void;
+  onPurchased?: (purchase: Purchase) => void;
 }) {
   const tickers = [
     ...new Set([
@@ -537,6 +541,14 @@ export default function Research({
                   </section>
                 ))}
               </div>
+              {onPurchased && (
+                <InvestmentPanel
+                  key={active + run}
+                  charity={charity}
+                  ticker={active}
+                  onPurchased={onPurchased}
+                />
+              )}
               <p className="research-caption">
                 These findings describe the research assessment. Exact holdings
                 still come from the constrained portfolio optimiser. Past

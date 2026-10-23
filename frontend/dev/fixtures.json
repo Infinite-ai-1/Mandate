@@ -77,6 +77,7 @@
     "weights_reason": "Synthetic conservative weighting"
   },
   "/api/charities/cancer_research_wales/policy": {
+    "policy_revision": 1,
     "text": "SYNTHETIC TEST POLICY. This is not the charity's actual policy.\nNo tobacco. All other limits in this fixture are assumed for testing."
   },
   "/api/charities/cancer_research_wales/portfolio": {
@@ -586,6 +587,7 @@
     "weights_reason": "Synthetic conservative weighting"
   },
   "/api/charities/british_thoracic_society/policy": {
+    "policy_revision": 1,
     "text": "SYNTHETIC TEST POLICY. This is not the charity's actual policy.\nNo tobacco. All other limits in this fixture are assumed for testing."
   },
   "/api/charities/british_thoracic_society/portfolio": {
@@ -1095,6 +1097,7 @@
     "weights_reason": "Synthetic conservative weighting"
   },
   "/api/charities/british_red_cross/policy": {
+    "policy_revision": 1,
     "text": "SYNTHETIC TEST POLICY. This is not the charity's actual policy.\nNo tobacco. All other limits in this fixture are assumed for testing."
   },
   "/api/charities/british_red_cross/portfolio": {
@@ -1604,6 +1607,7 @@
     "weights_reason": "Synthetic conservative weighting"
   },
   "/api/charities/nuffield_oxford_hospitals_fund/policy": {
+    "policy_revision": 1,
     "text": "SYNTHETIC TEST POLICY. This is not the charity's actual policy.\nNo tobacco. All other limits in this fixture are assumed for testing."
   },
   "/api/charities/nuffield_oxford_hospitals_fund/portfolio": {

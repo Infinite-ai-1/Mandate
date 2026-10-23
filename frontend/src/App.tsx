@@ -23,9 +23,13 @@ import {
   type Rules,
   type Selection,
   type Source,
+  type Account,
+  type PolicyDocument,
+  type Purchase,
 } from "./api";
 import { useResource } from "./hooks";
 import Research from "./Research";
+import PolicyEditor from "./PolicyEditor";
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -708,6 +712,140 @@ function Compare({
   );
 }
 
+function StatsDetails({
+  p,
+  r,
+  rules,
+}: {
+  p: Portfolio;
+  r?: Rules;
+  rules: Resource;
+}) {
+  return (
+    <>
+      <section className="panel">
+        <p className="eyebrow">Historical evidence, not a promise</p>
+        <h2>Risk & the trustees’ limits</h2>
+        <Status resource={rules} />
+        <div className="risk-grid">
+          <RiskCard
+            title="Trailing dividend yield"
+            value={percent.format(p.risk.yield)}
+            ok={p.checks.yield_ok}
+            limit={
+              r
+                ? `Minimum ${percent.format(r.constraints.min_yield)}`
+                : "Limit loading"
+            }
+          />
+          <RiskCard
+            title="Historical drawdown check"
+            value={p.checks.max_drawdown_ok ? "Within limit" : "Outside limit"}
+            ok={p.checks.max_drawdown_ok}
+            limit={
+              r
+                ? `Drawdown floor ${percent.format(r.constraints.max_drawdown)}`
+                : "Limit loading"
+            }
+          />
+          <RiskCard
+            title="Bond allocation check"
+            value={p.checks.bonds_ok ? "Within limit" : "Outside limit"}
+            ok={p.checks.bonds_ok}
+            limit={
+              r
+                ? `Minimum ${percent.format(r.constraints.min_bonds)}`
+                : "Limit loading"
+            }
+          />
+          <RiskCard
+            title="Annualised volatility"
+            value={percent.format(p.risk.volatility)}
+          />
+          <RiskCard
+            title="Worst rolling twelve months"
+            value={percent.format(p.risk.worst_12m)}
+          />
+          <RiskCard
+            title="Return vs SPY / AGG benchmark"
+            value={percent.format(p.risk.vs_6040_return)}
+          />
+        </div>
+        <p className="muted">
+          Past performance, not a forecast. Final weights replayed over history.
+          Checks use the original trustee limits.
+        </p>
+        {p.relaxed.length > 0 && (
+          <div className="notice">
+            <h3>Constraints relaxed</h3>
+            <ul>
+              {p.relaxed.map((x, i) => (
+                <li key={i}>{x}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+      <section className="two-columns">
+        <article className="panel memo">
+          <p className="eyebrow">For the board</p>
+          <h2>Trustee memo</h2>
+          <p>{p.memo || "Memo not yet supplied."}</p>
+        </article>
+        <article className="panel devil">
+          <p className="eyebrow">Challenge the recommendation</p>
+          <h2>Devil’s advocate</h2>
+          {p.devils_advocate.length ? (
+            <ul>
+              {p.devils_advocate.map((x, i) => (
+                <li key={i}>{x}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No counterarguments supplied.</p>
+          )}
+        </article>
+      </section>
+      <section className="panel">
+        <h2>Run transparency</h2>
+        <div className="run-stats">
+          <p>
+            <strong>{number.format(p.run_stats.seconds)}</strong> seconds
+          </p>
+          <p>
+            <strong>{number.format(p.run_stats.llm_calls)}</strong> LLM calls
+          </p>
+          <p>
+            <strong>{number.format(p.run_stats.tokens)}</strong> tokens
+          </p>
+        </div>
+        <div className="agent-stats">
+          {Object.entries(p.run_stats.by_agent).map(([agent, stats]) => (
+            <div key={agent}>
+              <h3>{agent}</h3>
+              {typeof stats === "object" && stats ? (
+                Object.entries(stats)
+                  .filter(
+                    ([, v]) => typeof v === "number" || typeof v === "string",
+                  )
+                  .map(([key, value]) => (
+                    <p key={key}>
+                      {key.replaceAll("_", " ")}:{" "}
+                      {typeof value === "number"
+                        ? number.format(value)
+                        : String(value)}
+                    </p>
+                  ))
+              ) : (
+                <p>{String(stats)}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
 export default function App() {
   const charities = useResource<Charity[]>(paths.charities);
   const [selected, setSelected] = useState(() => {
@@ -723,6 +861,11 @@ export default function App() {
   const [version, setVersion] = useState(0);
   const [researchBusy, setResearchBusy] = useState(false);
   const [tab, setTab] = useState("portfolio");
+  const account = useResource<Account>(id ? paths.account(id) : null, version);
+  const [purchaseNotice, setPurchaseNotice] = useState<{
+    charity: string;
+    receipt: Purchase["receipt"];
+  } | null>(null);
   const portfolio = useResource<Portfolio>(
     id ? paths.portfolio(id) : null,
     version,
@@ -732,7 +875,7 @@ export default function App() {
     id ? paths.selection(id) : null,
     version,
   );
-  const policy = useResource<{ text: string }>(
+  const policy = useResource<PolicyDocument>(
     id ? paths.policy(id) : null,
     version,
   );
@@ -756,7 +899,7 @@ export default function App() {
   const baseBusy =
     pending || !!jobId || job?.status === "queued" || job?.status === "running";
   const busy = baseBusy || researchBusy;
-  const p = portfolio.data;
+  const p = account.data?.portfolio ?? portfolio.data;
   const r = rules.data;
   const current = charities.data?.find((c) => c.charity_id === id);
   useEffect(() => () => jobController.current?.abort(), []);
@@ -823,7 +966,16 @@ export default function App() {
             const prior = new Set(
               before.current?.holdings.map((h) => h.ticker) || [],
             );
-            const after = new Set(result.holdings.map((h) => h.ticker));
+            const currentResult = account.data
+              ? (
+                  await request<Account>(
+                    paths.account(jobCharity),
+                    undefined,
+                    controller.signal,
+                  )
+                ).portfolio
+              : result;
+            const after = new Set(currentResult.holdings.map((h) => h.ticker));
             setChanges({
               charity: jobCharity,
               added: [...after].filter((t) => !prior.has(t)),
@@ -877,12 +1029,15 @@ export default function App() {
     if (jobId) setLastJobId(jobId);
   }, [jobId]);
   const changed = changes?.charity === id ? changes : null;
-  const totals = id ? presentation(paths.portfolio(id)) : undefined;
+  const totals =
+    account.data?.presentation ??
+    (id ? presentation(paths.portfolio(id)) : undefined);
+  const chart = account.data?.chart ?? p?.holdings ?? [];
   const funnel = id ? presentation(paths.selection(id)) : undefined;
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#main">
+        <a className="brand" href="#main" onClick={() => setTab("portfolio")}>
           <span className="brand-mark">M</span>mandate
           <span className="brand-dot">.</span>
         </a>
@@ -909,8 +1064,11 @@ export default function App() {
         </select>
         <nav aria-label="Workspace">
           {[
-            ["portfolio", "Portfolio"],
+            ["portfolio", "Home"],
             ["research", "Research stock"],
+            ["stats", "Stats"],
+            ["rejections", "Rejections"],
+            ["verify", "To verify"],
             ["decisions", "Agent decisions"],
             ["policy", "Policy & rules"],
             ["compare", "Compare mandates"],
@@ -921,7 +1079,7 @@ export default function App() {
               onClick={() => setTab(key)}
             >
               {label}
-              <span>↗</span>
+              <span aria-hidden="true">↗</span>
             </button>
           ))}
         </nav>
@@ -967,6 +1125,15 @@ export default function App() {
           </div>
         </header>
         <main id="main">
+          {purchaseNotice?.charity === id && tab === "portfolio" && (
+            <div className="change-strip" role="status">
+              {money.format(purchaseNotice.receipt.spent_usd)} allocated to{" "}
+              {purchaseNotice.receipt.ticker} ·{" "}
+              {number.format(purchaseNotice.receipt.shares)} whole shares. Your
+              pot, holdings and pie chart have been updated. Simulated
+              investment.
+            </div>
+          )}
           <div className="page-heading">
             <div>
               <p className="eyebrow">
@@ -1007,6 +1174,14 @@ export default function App() {
                     externalBusy={!!baseBusy}
                     onBusy={setResearchBusy}
                     onComplete={() => setVersion((v) => v + 1)}
+                    onPurchased={(purchase) => {
+                      setPurchaseNotice({
+                        charity: id,
+                        receipt: purchase.receipt,
+                      });
+                      setVersion((v) => v + 1);
+                      setTab("portfolio");
+                    }}
                     openSource={setSource}
                   />
                 </>
@@ -1036,7 +1211,15 @@ export default function App() {
                     <h2>Policy text</h2>
                     <Status resource={policy} />
                     {policy.data && (
-                      <p className="policy-text">{policy.data.text}</p>
+                      <PolicyEditor
+                        key={id}
+                        policy={policy.data}
+                        revision={account.data?.policy_revision}
+                        busy={!!busy}
+                        onSave={(text, revision) =>
+                          void start(() => api.updatePolicy(id, text, revision))
+                        }
+                      />
                     )}
                   </section>
                   <section className="panel">
@@ -1106,6 +1289,13 @@ export default function App() {
               )}
               {tab === "portfolio" && (
                 <>
+                  <Status resource={account} />
+                  {account.error && !account.data && (
+                    <p className="notice">
+                      The managed pot is unavailable. The portfolio below is the
+                      API’s suggested allocation, not a record of purchases.
+                    </p>
+                  )}
                   <section className="research-entry">
                     <div>
                       <p className="research-kicker">
@@ -1190,34 +1380,65 @@ export default function App() {
                             A portfolio built around your mandate
                           </p>
                           <h2>
-                            Invest {money.format(p.total_usd)}
-                            {totals?.total_gbp !== undefined && (
+                            {account.data ? (
                               <>
-                                {" "}
-                                (about{" "}
-                                {new Intl.NumberFormat("en-GB", {
-                                  style: "currency",
-                                  currency: "GBP",
-                                  maximumFractionDigits: 0,
-                                }).format(totals.total_gbp)}
-                                )
-                              </>
-                            )}
-                            {totals?.holdings_count !== undefined ? (
-                              <>
-                                {" "}
-                                across {number.format(
-                                  totals.holdings_count,
-                                )}{" "}
-                                holdings:
+                                Your {money.format(p.total_usd)} investment pot
                               </>
                             ) : (
                               <>
-                                <br />
-                                <span>with a reason for every holding.</span>
+                                Invest {money.format(p.total_usd)}
+                                {totals?.total_gbp !== undefined && (
+                                  <>
+                                    {" "}
+                                    (about{" "}
+                                    {new Intl.NumberFormat("en-GB", {
+                                      style: "currency",
+                                      currency: "GBP",
+                                      maximumFractionDigits: 0,
+                                    }).format(totals.total_gbp)}
+                                    )
+                                  </>
+                                )}
+                                {totals?.holdings_count !== undefined ? (
+                                  <>
+                                    {" "}
+                                    across{" "}
+                                    {number.format(totals.holdings_count)}{" "}
+                                    holdings:
+                                  </>
+                                ) : (
+                                  <>
+                                    <br />
+                                    <span>
+                                      with a reason for every holding.
+                                    </span>
+                                  </>
+                                )}
                               </>
                             )}
                           </h2>
+                          {account.data && (
+                            <div className="pot-balances">
+                              <p>
+                                Available to invest
+                                <strong>{money.format(p.cash_usd)}</strong>
+                              </p>
+                              <p>
+                                Allocated
+                                <strong>
+                                  {money.format(account.data.invested_usd)}
+                                </strong>
+                              </p>
+                              <p>
+                                Holdings
+                                <strong>
+                                  {number.format(
+                                    account.data.presentation.holdings_count!,
+                                  )}
+                                </strong>
+                              </p>
+                            </div>
+                          )}
                           {totals?.shares_weight !== undefined &&
                             totals?.bonds_weight !== undefined &&
                             totals?.cash_weight !== undefined && (
@@ -1246,11 +1467,11 @@ export default function App() {
                           role="img"
                           aria-label="Portfolio allocation by holding; weights are from the API"
                         >
-                          {p.holdings.length > 0 ? (
+                          {chart.length > 0 ? (
                             <ResponsiveContainer width="100%" height={300}>
                               <PieChart>
                                 <Pie
-                                  data={p.holdings}
+                                  data={chart}
                                   dataKey="weight"
                                   nameKey="ticker"
                                   innerRadius="58%"
@@ -1258,7 +1479,7 @@ export default function App() {
                                   paddingAngle={2}
                                   stroke="none"
                                 >
-                                  {p.holdings.map((h, i) => (
+                                  {chart.map((h, i) => (
                                     <Cell
                                       key={h.ticker}
                                       fill={colours[i % colours.length]}
@@ -1301,7 +1522,11 @@ export default function App() {
                       <section className="panel">
                         <div className="section-heading">
                           <div>
-                            <p className="eyebrow">The proposed allocation</p>
+                            <p className="eyebrow">
+                              {account.data
+                                ? "Your current allocation"
+                                : "The proposed allocation"}
+                            </p>
                             <h2>Holdings & their reasons</h2>
                           </div>
                           <p className="muted">
@@ -1398,206 +1623,86 @@ export default function App() {
                           </table>
                           {!p.holdings.length && (
                             <p className="empty">
-                              No holdings. Read the relaxation explanation
-                              below.
+                              No stocks purchased yet. Research a stock, then
+                              choose how much to allocate from your pot.
                             </p>
-                          )}
-                        </div>
-                      </section>
-                      <section className="panel">
-                        <p className="eyebrow">
-                          Historical evidence, not a promise
-                        </p>
-                        <h2>Risk & the trustees’ limits</h2>
-                        <Status resource={rules} />
-                        <div className="risk-grid">
-                          <RiskCard
-                            title="Trailing dividend yield"
-                            value={percent.format(p.risk.yield)}
-                            ok={p.checks.yield_ok}
-                            limit={
-                              r
-                                ? `Minimum ${percent.format(r.constraints.min_yield)}`
-                                : "Limit loading"
-                            }
-                          />
-                          <RiskCard
-                            title="Historical drawdown check"
-                            value={
-                              p.checks.max_drawdown_ok
-                                ? "Within limit"
-                                : "Outside limit"
-                            }
-                            ok={p.checks.max_drawdown_ok}
-                            limit={
-                              r
-                                ? `Drawdown floor ${percent.format(r.constraints.max_drawdown)}`
-                                : "Limit loading"
-                            }
-                          />
-                          <RiskCard
-                            title="Bond allocation check"
-                            value={
-                              p.checks.bonds_ok
-                                ? "Within limit"
-                                : "Outside limit"
-                            }
-                            ok={p.checks.bonds_ok}
-                            limit={
-                              r
-                                ? `Minimum ${percent.format(r.constraints.min_bonds)}`
-                                : "Limit loading"
-                            }
-                          />
-                          <RiskCard
-                            title="Annualised volatility"
-                            value={percent.format(p.risk.volatility)}
-                          />
-                          <RiskCard
-                            title="Worst rolling twelve months"
-                            value={percent.format(p.risk.worst_12m)}
-                          />
-                          <RiskCard
-                            title="Return vs SPY / AGG benchmark"
-                            value={percent.format(p.risk.vs_6040_return)}
-                          />
-                        </div>
-                        <p className="muted">
-                          Past performance, not a forecast. Final weights
-                          replayed over history. Checks use the original trustee
-                          limits.
-                        </p>
-                        {p.relaxed.length > 0 && (
-                          <div className="notice">
-                            <h3>Constraints relaxed</h3>
-                            <ul>
-                              {p.relaxed.map((x, i) => (
-                                <li key={i}>{x}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </section>
-                      <section className="two-columns">
-                        <div className="panel">
-                          <p className="eyebrow">Exclusions stay visible</p>
-                          <h2>Why we rejected</h2>
-                          {p.rejected.length ? (
-                            p.rejected.map((d) => (
-                              <Rejected
-                                key={d.ticker}
-                                decision={d}
-                                charity={id}
-                                version={version}
-                                open={setSource}
-                                company={setCompany}
-                              />
-                            ))
-                          ) : (
-                            <p>No rejections returned.</p>
-                          )}
-                        </div>
-                        <div className="panel">
-                          <p className="eyebrow">Decisions for people</p>
-                          <h2>Trustee review</h2>
-                          {p.trustee_review.length ? (
-                            p.trustee_review.map((d) => (
-                              <article className="rejection" key={d.ticker}>
-                                <button
-                                  className="ticker"
-                                  onClick={() => setCompany(d.ticker)}
-                                >
-                                  {d.ticker} ↗
-                                </button>
-                                <p>{d.reason}</p>
-                                <Chips ids={d.source_ids} open={setSource} />
-                              </article>
-                            ))
-                          ) : (
-                            <p>No companies awaiting review.</p>
-                          )}
-                          <h3>What is unclear</h3>
-                          <Status resource={rules} />
-                          <ul>
-                            {r?.questions.map((q, i) => (
-                              <li key={i}>{q}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </section>
-                      <section className="two-columns">
-                        <article className="panel memo">
-                          <p className="eyebrow">For the board</p>
-                          <h2>Trustee memo</h2>
-                          <p>{p.memo || "Memo not yet supplied."}</p>
-                        </article>
-                        <article className="panel devil">
-                          <p className="eyebrow">
-                            Challenge the recommendation
-                          </p>
-                          <h2>Devil’s advocate</h2>
-                          {p.devils_advocate.length ? (
-                            <ul>
-                              {p.devils_advocate.map((x, i) => (
-                                <li key={i}>{x}</li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p>No counterarguments supplied.</p>
-                          )}
-                        </article>
-                      </section>
-                      <section className="panel">
-                        <h2>Run transparency</h2>
-                        <div className="run-stats">
-                          <p>
-                            <strong>
-                              {number.format(p.run_stats.seconds)}
-                            </strong>{" "}
-                            seconds
-                          </p>
-                          <p>
-                            <strong>
-                              {number.format(p.run_stats.llm_calls)}
-                            </strong>{" "}
-                            LLM calls
-                          </p>
-                          <p>
-                            <strong>{number.format(p.run_stats.tokens)}</strong>{" "}
-                            tokens
-                          </p>
-                        </div>
-                        <div className="agent-stats">
-                          {Object.entries(p.run_stats.by_agent).map(
-                            ([agent, stats]) => (
-                              <div key={agent}>
-                                <h3>{agent}</h3>
-                                {typeof stats === "object" && stats ? (
-                                  Object.entries(stats)
-                                    .filter(
-                                      ([, v]) =>
-                                        typeof v === "number" ||
-                                        typeof v === "string",
-                                    )
-                                    .map(([key, value]) => (
-                                      <p key={key}>
-                                        {key.replaceAll("_", " ")}:{" "}
-                                        {typeof value === "number"
-                                          ? number.format(value)
-                                          : String(value)}
-                                      </p>
-                                    ))
-                                ) : (
-                                  <p>{String(stats)}</p>
-                                )}
-                              </div>
-                            ),
                           )}
                         </div>
                       </section>
                     </>
                   )}
                 </>
+              )}
+              {tab === "stats" && p && (
+                <>
+                  <h2>Portfolio stats</h2>
+                  <Status resource={account} />
+                  <StatsDetails p={p} r={r} rules={rules} />
+                </>
+              )}
+              {tab === "rejections" && p && (
+                <section className="panel">
+                  <h2>Rejections</h2>
+                  <p>
+                    Companies excluded by the current policy or investment
+                    assessment.
+                  </p>
+                  <Status resource={account} />
+                  {p.rejected.map((d) => (
+                    <Rejected
+                      key={d.ticker}
+                      decision={d}
+                      charity={id}
+                      version={version}
+                      open={setSource}
+                      company={setCompany}
+                    />
+                  ))}
+                  {!p.rejected.length && <p>No rejections returned.</p>}
+                </section>
+              )}
+              {tab === "verify" && p && (
+                <section className="panel">
+                  <h2>To verify</h2>
+                  <Status resource={account} />
+                  {account.data?.to_verify.map((item) => (
+                    <article className="rejection" key={"held-" + item.ticker}>
+                      <button
+                        className="ticker"
+                        onClick={() => setCompany(item.ticker)}
+                      >
+                        {item.ticker} · Held stock needs review ↗
+                      </button>
+                      <p>{item.reason}</p>
+                      <p>
+                        The position stays visible on Home. Additional purchases
+                        are blocked.
+                      </p>
+                    </article>
+                  ))}
+                  {p.trustee_review.map((d) => (
+                    <article className="rejection" key={d.ticker}>
+                      <button
+                        className="ticker"
+                        onClick={() => setCompany(d.ticker)}
+                      >
+                        {d.ticker} ↗
+                      </button>
+                      <p>{d.reason}</p>
+                      <Chips ids={d.source_ids} open={setSource} />
+                    </article>
+                  ))}
+                  <h3>Trustee questions</h3>
+                  <ul>
+                    {r?.questions.map((question, i) => (
+                      <li key={i}>{question}</li>
+                    ))}
+                  </ul>
+                  {!p.trustee_review.length &&
+                    !account.data?.to_verify.length && (
+                      <p>No companies awaiting verification.</p>
+                    )}
+                </section>
               )}
               {tab !== "research" && (
                 <section className="panel live-rule">

@@ -17,6 +17,7 @@ from flask import Flask, jsonify, request
 from quant.contract_fixtures import CHARITIES, Portfolio, fixture_inputs
 from quant.optimiser import optimise
 from frontend.flask_static import register_frontend
+from frontend.dev.workspace import DemoWorkspace
 
 class Store:
     def __init__(self, cache_dir=None):
@@ -59,6 +60,11 @@ class Store:
         if ticker=="DECLINE":verdict="PASS"
         ethics_reason=("Verified sample evidence passes this charity's ethics rule." if verdict=="PASS" else "Sample evidence is incomplete; the ethics decision needs trustee review." if verdict=="FLAG" else "Verified sample tobacco exposure fails this charity's exclusion rule.")
         source = f"S-{ticker}-TEST"
+        policy_exclusion=decision["reason"].startswith("Policy revision")
+        if policy_exclusion:
+            source=decision["source_ids"][0]
+            verdict="FAIL"
+            ethics_reason=decision["reason"]
         def score(agent, model):
             summary=("The sample financial evidence supports the investment case." if agent=="balthasar" else "The sample risk assessment supports investing within the assumed limits.")
             if ticker in ("REVIEW","DECLINE"):
@@ -66,8 +72,8 @@ class Store:
             elif ticker=="CAPPED" and agent=="casper":
                 summary="The sample risk vote opposes investing; the Chair allows only a capped exposure."
             return dict(ticker=ticker, agent=agent, model=model, score=70, reasons=[dict(claim="Synthetic evidence for an offline interface test.", source_ids=[source], verified=True)], summary=summary+" Synthetic demonstration only.")
-        return dict(melchior=dict(ticker=ticker, agent="melchior", model="GPT 6.1 Sol (fixture)", verdicts=[dict(rule_id="R1", verdict=verdict, confidence=.9,
-            quote="Synthetic test quote: this company sells tobacco." if verdict=="FAIL" else "Synthetic test quote: further evidence is available.",
+        return dict(melchior=dict(ticker=ticker, agent="melchior", model="GPT 6.1 Sol (fixture)", verdicts=[dict(rule_id=f"POLICY-{self.workspace.states[cid]['policy_revision']}-{ticker}" if policy_exclusion else "R1", verdict=verdict, confidence=.9,
+            quote=self.workspace.states[cid]["policy_text"] if policy_exclusion else "Synthetic test quote: this company sells tobacco." if verdict=="FAIL" else "Synthetic test quote: further evidence is available.",
             source_id=source, reason=ethics_reason, verified=True)]), balthasar=score("balthasar", "MAI Thinking 1 (fixture)"),
             casper=score("casper", "Claude Sonnet 5.5 (fixture)"), decision=decision)
 
@@ -110,6 +116,8 @@ class Store:
 
 def create_app(cache_dir=None, serve_static=True):
     app=Flask(__name__);store=Store(cache_dir);app.config["FIXTURE_STORE"]=store
+    store.workspace=DemoWorkspace(store,cache_dir)
+    app.config["MANDATE_WORKSPACE_PROVIDER"]=store.workspace
     # Explicit, labelled fixture votes. Real providers must supply actual votes;
     # the adapter never turns an arbitrary score into an invented investment vote.
     app.config["MANDATE_RESEARCH_VOTES"]=lambda path: ({"balthasar":"DO_NOT_INVEST","casper":"DO_NOT_INVEST"} if path.endswith(("/REVIEW","/DECLINE")) else {"balthasar":"INVEST","casper":"DO_NOT_INVEST"} if path.endswith("/CAPPED") else {"balthasar":"INVEST","casper":"INVEST"})
@@ -125,7 +133,7 @@ def create_app(cache_dir=None, serve_static=True):
     @app.get("/api/charities/<cid>/<resource>")
     def resource(cid,resource):
         if cid not in store.rules:return jsonify(error="Unknown charity"),404
-        if resource=="policy":return jsonify(text="SYNTHETIC TEST POLICY. This is not the charity's actual policy.\nNo tobacco. All other limits in this fixture are assumed for testing.")
+        if resource=="policy":return jsonify(text=store.workspace.states[cid]["policy_text"],policy_revision=store.workspace.states[cid]["policy_revision"])
         if resource=="rules":return jsonify(store.rules[cid])
         if resource=="portfolio":return jsonify(store.portfolios[cid])
         if resource=="selection":return jsonify(charity_id=cid,universe_size=550,after_prefilter=400,excluded_by_sic=[dict(ticker="VETO",sic="2111",rule_id="R1")],selected=[dict(ticker=d["ticker"],why="diversification") for d in store.decisions[cid]])

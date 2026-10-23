@@ -137,3 +137,55 @@ without submitting another refresh. Previous completed assessments remain
 clearly labelled on an error. The design uses a restrained paper/ink palette,
 editorial type and quiet separators; the agent cards run side by side on large
 screens and remain readable on narrow screens.
+
+## Home, managed pots, stats and policy updates
+
+Home is the default page and the brand link returns to it. Each charity has its
+own simulated $100,000 pot, initially all cash. Research results now include
+a suggested whole-share amount from the optimiser, constrained by the available
+cash and position cap. Evidence confidence is the proportion of returned claims
+with verified evidence, displayed on a 0–100 scale; it is not a chance of profit.
+The Buy form allocates a chosen maximum amount into whole shares, leaving the
+remainder as cash, then returns Home with updated holdings and a cash-inclusive
+pie chart. All amounts, shares, chart weights and historical stats come from
+the API. The suggested optimiser portfolio is retained separately from trustee
+purchases and is never treated as an executed order.
+
+Stats has its own page with risk/constraint checks, trustee memo, counterarguments
+and per-agent run stats. Rejections and To verify follow it in the navigation.
+To verify includes purchased positions that no longer satisfy an updated policy.
+Positions remain in the pot for review; no sale is performed automatically.
+
+Optional backend operations are registered by `workspace_api.py` without
+editing shared `api.py` or overriding an existing route:
+
+- GET `/api/charities/<id>/account`: current simulated Portfolio plus invested
+  dollars, computed presentation totals, cash-inclusive chart, policy revision
+  and held stocks needing review.
+- GET `/api/charities/<id>/companies/<ticker>/investment-quote`: suggested amount,
+  price, available funds, additional cap capacity, evidence confidence and
+  whether allocation is currently allowed.
+- POST `/api/charities/<id>/investments` with ticker, amount_usd, policy_revision
+  and request_id: validates current eligibility, whole shares, cash and caps,
+  persists the allocation, and returns receipt plus updated account. Request IDs
+  are idempotent; lost-response retries cannot spend the pot twice.
+- POST `/api/charities/<id>/policy` with text and policy_revision: saves through
+  a reassessment job and returns job_id. Stale revisions are rejected.
+
+The real backend must supply `MANDATE_WORKSPACE_PROVIDER` with account, quote,
+buy and update_policy methods. Missing providers return a clear unavailable
+response; no client-side transaction or fake policy save is substituted.
+`dev/workspace.py` is the offline sample implementation. It persists separate
+charity pots and policies atomically in ignored `dev/.cache/workspace-*.json`,
+recalculates stats from actual sample holdings/cash, and uses a lock to prevent
+overspending or buying during a policy reassessment. Proposed/capped allocations
+remain subject to their current decision and cap.
+
+The sample policy compiler recognises explicit `Exclude TICKER`, `Avoid TICKER`,
+`No TICKER` and `Do not invest in TICKER` exclusions for its fixture stocks.
+It rebuilds rules, verified policy citations, decisions and optimiser output for
+that charity, preserving the original tobacco veto. Unrestricted policy
+interpretation still requires the real AI compiler; this limitation is visible
+in the sample policy editor. Previous policy/state are restored on job failure.
+Policy changes block stale investment requests and flag existing holdings for
+review. No external trading service or live financial account is connected.
