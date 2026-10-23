@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 from flask import jsonify, request, send_from_directory
 from quant.presentation import portfolio_summary, selection_summary
+from frontend.research_summary import research_summary
 
 DIST = Path(__file__).resolve().parent / "dist"
 
@@ -19,6 +20,13 @@ def register_frontend(app, dist=DIST):
                     summary=portfolio_summary(response.get_json())
                 elif request.path.endswith("/selection"):
                     summary=selection_summary(response.get_json())
+                elif "/charities/" in request.path and "/companies/" in request.path:
+                    provider=app.config.get("MANDATE_RESEARCH_VOTES")
+                    votes=provider(request.path) if provider else None
+                    summary=research_summary(response.get_json(),votes)
+                    response.headers["X-Mandate-Research"]=json.dumps(summary,separators=(",",":"),allow_nan=False)
+                    response.headers.add("Access-Control-Expose-Headers","X-Mandate-Research")
+                    return response
                 else:
                     return response
                 response.headers["X-Mandate-Presentation"]=json.dumps(summary,separators=(",",":"),allow_nan=False)

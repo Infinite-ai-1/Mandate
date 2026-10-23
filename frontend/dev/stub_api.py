@@ -26,10 +26,13 @@ class Store:
         with patch.dict("sys.modules", {"schemas": types.SimpleNamespace(Portfolio=Portfolio)}):
             for cid, name, _ in CHARITIES:
                 prices, rules, decisions = fixture_inputs(cid, name)
+                decisions.append(dict(ticker="DECLINE",decision="REJECT",cap=0.0,decided_by="chair",
+                    reason="The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not.",
+                    source_ids=["S-DECLINE-TEST"],weighted_score=None))
                 rules["rules"].append(dict(id="R2", clause="Purpose", text="Synthetic mission alignment review", test="Trustee approval required", threshold="review", keywords=[], origin="proposed", approved=False))
                 self.prices[cid], self.rules[cid], self.decisions[cid] = prices, rules, decisions
                 self.portfolios[cid] = self._compute(cid)
-        for ticker in ("TEST", "CAPPED", "VETO", "REVIEW", "SPY", "AGG", "BND"):
+        for ticker in ("TEST", "CAPPED", "VETO", "REVIEW", "DECLINE", "SPY", "AGG", "BND"):
             self.sources[f"S-{ticker}-TEST"] = dict(source_id=f"S-{ticker}-TEST", ticker=ticker, kind="filing", origin="edgar_10k",
                 title=f"SYNTHETIC {ticker} filing for interface tests", date="2026-01-23", section="Synthetic test evidence",
                 url=f"/api/fixture-evidence/{ticker}")
@@ -53,12 +56,19 @@ class Store:
         if decision is None:
             return None
         verdict = "FAIL" if decision["decision"]=="REJECT" else "FLAG" if decision["decision"]=="TRUSTEE_REVIEW" else "PASS"
+        if ticker=="DECLINE":verdict="PASS"
+        ethics_reason=("Verified sample evidence passes this charity's ethics rule." if verdict=="PASS" else "Sample evidence is incomplete; the ethics decision needs trustee review." if verdict=="FLAG" else "Verified sample tobacco exposure fails this charity's exclusion rule.")
         source = f"S-{ticker}-TEST"
         def score(agent, model):
-            return dict(ticker=ticker, agent=agent, model=model, score=70, reasons=[dict(claim="Synthetic evidence for an offline interface test.", source_ids=[source], verified=True)], summary="Fixture score, not an investment assessment.")
+            summary=("The sample financial evidence supports the investment case." if agent=="balthasar" else "The sample risk assessment supports investing within the assumed limits.")
+            if ticker in ("REVIEW","DECLINE"):
+                summary=("The sample financial evidence is insufficient to support the investment case." if agent=="balthasar" else "The sample risk assessment opposes investing because the evidence is incomplete.")
+            elif ticker=="CAPPED" and agent=="casper":
+                summary="The sample risk vote opposes investing; the Chair allows only a capped exposure."
+            return dict(ticker=ticker, agent=agent, model=model, score=70, reasons=[dict(claim="Synthetic evidence for an offline interface test.", source_ids=[source], verified=True)], summary=summary+" Synthetic demonstration only.")
         return dict(melchior=dict(ticker=ticker, agent="melchior", model="GPT 6.1 Sol (fixture)", verdicts=[dict(rule_id="R1", verdict=verdict, confidence=.9,
             quote="Synthetic test quote: this company sells tobacco." if verdict=="FAIL" else "Synthetic test quote: further evidence is available.",
-            source_id=source, reason=decision["reason"], verified=True)]), balthasar=score("balthasar", "MAI Thinking 1 (fixture)"),
+            source_id=source, reason=ethics_reason, verified=True)]), balthasar=score("balthasar", "MAI Thinking 1 (fixture)"),
             casper=score("casper", "Claude Sonnet 5.5 (fixture)"), decision=decision)
 
     def job(self, cid, rule_text=None, ticker=None):
@@ -70,6 +80,16 @@ class Store:
                 job["status"]="running"
                 for message in ["Reading cached synthetic evidence.", "Checking rule and ethics decisions.", "Solving minimum-volatility allocation."]:
                     job["progress"].append(message);time.sleep(.45)
+                if ticker:
+                    for message in [
+                        "[melchior] Comparing the selected charity's rules with cached sample evidence.",
+                        "[balthasar] Reviewing the sample financial assessment and its sources.",
+                        "[casper] Reviewing the sample risk assessment and its sources.",
+                        "[melchior:done] Ethics assessment complete. Sample rule checks are ready.",
+                        "[balthasar:done] Financial assessment complete. Sample findings are ready.",
+                        "[casper:done] Risk assessment complete. Sample findings are ready.",
+                    ]:
+                        job["progress"].append(message);time.sleep(.75)
                 with self.lock:
                     targets=[cid] if cid else [c[0] for c in CHARITIES]
                     for target in targets:
@@ -90,6 +110,9 @@ class Store:
 
 def create_app(cache_dir=None, serve_static=True):
     app=Flask(__name__);store=Store(cache_dir);app.config["FIXTURE_STORE"]=store
+    # Explicit, labelled fixture votes. Real providers must supply actual votes;
+    # the adapter never turns an arbitrary score into an invented investment vote.
+    app.config["MANDATE_RESEARCH_VOTES"]=lambda path: ({"balthasar":"DO_NOT_INVEST","casper":"DO_NOT_INVEST"} if path.endswith(("/REVIEW","/DECLINE")) else {"balthasar":"INVEST","casper":"DO_NOT_INVEST"} if path.endswith("/CAPPED") else {"balthasar":"INVEST","casper":"INVEST"})
     @app.after_request
     def label(response):
         response.headers["X-Mandate-Data"]="synthetic"

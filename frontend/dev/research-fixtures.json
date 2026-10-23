@@ -1,0 +1,382 @@
+{
+  "/api/charities/cancer_research_wales/companies/TEST": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 3,
+    "consensus": "STRONG_BUY",
+    "recommendation": "STRONG_BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/cancer_research_wales/companies/CAPPED": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk vote opposes investing; the Chair allows only a capped exposure. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/cancer_research_wales/companies/VETO": {
+    "votes": {
+      "melchior": "DO_NOT_INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "REJECT",
+    "ethics_blocked": true,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample tobacco exposure fails this charity's exclusion rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/cancer_research_wales/companies/REVIEW": {
+    "votes": {
+      "melchior": "REVIEW",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 0,
+    "consensus": "REJECT",
+    "recommendation": "REVIEW",
+    "ethics_blocked": false,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Sample evidence is incomplete; the ethics decision needs trustee review.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/cancer_research_wales/companies/DECLINE": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 1,
+    "consensus": "REJECT",
+    "recommendation": "REJECT",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not."
+  },
+  "/api/charities/british_thoracic_society/companies/TEST": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 3,
+    "consensus": "STRONG_BUY",
+    "recommendation": "STRONG_BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_thoracic_society/companies/CAPPED": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk vote opposes investing; the Chair allows only a capped exposure. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_thoracic_society/companies/VETO": {
+    "votes": {
+      "melchior": "DO_NOT_INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "REJECT",
+    "ethics_blocked": true,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample tobacco exposure fails this charity's exclusion rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_thoracic_society/companies/REVIEW": {
+    "votes": {
+      "melchior": "REVIEW",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 0,
+    "consensus": "REJECT",
+    "recommendation": "REVIEW",
+    "ethics_blocked": false,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Sample evidence is incomplete; the ethics decision needs trustee review.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_thoracic_society/companies/DECLINE": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 1,
+    "consensus": "REJECT",
+    "recommendation": "REJECT",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not."
+  },
+  "/api/charities/british_red_cross/companies/TEST": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 3,
+    "consensus": "STRONG_BUY",
+    "recommendation": "STRONG_BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_red_cross/companies/CAPPED": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk vote opposes investing; the Chair allows only a capped exposure. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_red_cross/companies/VETO": {
+    "votes": {
+      "melchior": "DO_NOT_INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "REJECT",
+    "ethics_blocked": true,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample tobacco exposure fails this charity's exclusion rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_red_cross/companies/REVIEW": {
+    "votes": {
+      "melchior": "REVIEW",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 0,
+    "consensus": "REJECT",
+    "recommendation": "REVIEW",
+    "ethics_blocked": false,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Sample evidence is incomplete; the ethics decision needs trustee review.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/british_red_cross/companies/DECLINE": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 1,
+    "consensus": "REJECT",
+    "recommendation": "REJECT",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not."
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/TEST": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 3,
+    "consensus": "STRONG_BUY",
+    "recommendation": "STRONG_BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/CAPPED": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "BUY",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk vote opposes investing; the Chair allows only a capped exposure. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/VETO": {
+    "votes": {
+      "melchior": "DO_NOT_INVEST",
+      "balthasar": "INVEST",
+      "casper": "INVEST"
+    },
+    "invest_votes": 2,
+    "consensus": "BUY",
+    "recommendation": "REJECT",
+    "ethics_blocked": true,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample tobacco exposure fails this charity's exclusion rule.",
+      "financial": "The sample financial evidence supports the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment supports investing within the assumed limits. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/REVIEW": {
+    "votes": {
+      "melchior": "REVIEW",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 0,
+    "consensus": "REJECT",
+    "recommendation": "REVIEW",
+    "ethics_blocked": false,
+    "ethics_score": 0.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Sample evidence is incomplete; the ethics decision needs trustee review.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "Synthetic decision for offline tests"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/DECLINE": {
+    "votes": {
+      "melchior": "INVEST",
+      "balthasar": "DO_NOT_INVEST",
+      "casper": "DO_NOT_INVEST"
+    },
+    "invest_votes": 1,
+    "consensus": "REJECT",
+    "recommendation": "REJECT",
+    "ethics_blocked": false,
+    "ethics_score": 100.0,
+    "ethics_definition": "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+    "rationale": {
+      "ethics": "Verified sample evidence passes this charity's ethics rule.",
+      "financial": "The sample financial evidence is insufficient to support the investment case. Synthetic demonstration only.",
+      "risk": "The sample risk assessment opposes investing because the evidence is incomplete. Synthetic demonstration only."
+    },
+    "chair_reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not."
+  }
+}

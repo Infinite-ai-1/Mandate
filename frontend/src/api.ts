@@ -142,6 +142,20 @@ export interface Presentation {
   cash_weight?: number;
   analysed_count?: number;
 }
+export type ResearchAgent = "melchior" | "balthasar" | "casper";
+export type ResearchVote = "INVEST" | "DO_NOT_INVEST" | "REVIEW";
+export type ResearchRating = "STRONG_BUY" | "BUY" | "REJECT" | "REVIEW";
+export interface ResearchSummary {
+  votes: Record<ResearchAgent, ResearchVote | null>;
+  invest_votes: number | null;
+  consensus: ResearchRating | null;
+  recommendation: ResearchRating | null;
+  ethics_blocked: boolean;
+  ethics_score: number | null;
+  ethics_definition: string;
+  rationale: { ethics: string; financial: string; risk: string };
+  chair_reason: string;
+}
 
 export const paths = {
   charities: "/api/charities",
@@ -328,12 +342,16 @@ export function cached<T>(path: string): T | undefined {
 export function remember<T>(path: string, data: T) {
   memory.set(path, data);
   memory.delete("presentation:" + path);
+  memory.delete("research:" + path);
   try {
     localStorage.setItem(`mandate:${path}`, JSON.stringify(data));
     localStorage.removeItem(`mandate:presentation:${path}`);
   } catch {
     /* memory cache still works */
   }
+}
+export function researchSummary(path: string): ResearchSummary | undefined {
+  return memory.get("research:" + path) as ResearchSummary | undefined;
 }
 export function presentation(path: string): Presentation | undefined {
   if (memory.has("presentation:" + path))
@@ -387,6 +405,45 @@ export async function request<T>(
     if (body === undefined) {
       remember(path, data);
       try {
+        const raw = response.headers.get("X-Mandate-Research");
+        const summary = raw ? JSON.parse(raw) : null;
+        const ratings = ["STRONG_BUY", "BUY", "REJECT", "REVIEW"];
+        if (
+          obj(summary) &&
+          obj(summary.votes) &&
+          ["melchior", "balthasar", "casper"].every(
+            (a) =>
+              summary.votes &&
+              obj(summary.votes) &&
+              (summary.votes[a] === null ||
+                ["INVEST", "DO_NOT_INVEST", "REVIEW"].includes(
+                  String(summary.votes[a]),
+                )),
+          ) &&
+          (summary.ethics_score === null ||
+            (num(summary.ethics_score) &&
+              Number(summary.ethics_score) >= 0 &&
+              Number(summary.ethics_score) <= 100)) &&
+          (summary.invest_votes === null ||
+            (num(summary.invest_votes) &&
+              Number.isInteger(summary.invest_votes) &&
+              Number(summary.invest_votes) >= 0 &&
+              Number(summary.invest_votes) <= 3)) &&
+          (summary.recommendation === null ||
+            ratings.includes(String(summary.recommendation))) &&
+          (summary.consensus === null ||
+            ratings.includes(String(summary.consensus))) &&
+          typeof summary.ethics_blocked === "boolean" &&
+          str(summary.ethics_definition) &&
+          str(summary.chair_reason) &&
+          fields(summary.rationale, ["ethics", "financial", "risk"], str)
+        ) {
+          memory.set("research:" + path, summary);
+        }
+      } catch {
+        /* Optional research metadata never replaces the actual report. */
+      }
+      try {
         const header = response.headers.get("X-Mandate-Presentation");
         const summary = header ? JSON.parse(header) : null;
         if (obj(summary) && Object.values(summary).every(num)) {
@@ -416,8 +473,8 @@ export const api = {
   addRule: (id: string, text: string) =>
     request<{ job_id: string }>(paths.rules(id), { rule_text: text }),
   run: (id: string) => request<{ job_id: string }>(paths.run(id), {}),
-  refresh: (ticker: string) =>
-    request<{ job_id: string }>(paths.refresh(ticker), {}),
+  refresh: (ticker: string, signal?: AbortSignal) =>
+    request<{ job_id: string }>(paths.refresh(ticker), {}, signal),
   job: (id: string, signal?: AbortSignal) =>
     request<Job>(paths.job(id), undefined, signal),
 };

@@ -25,6 +25,7 @@ import {
   type Source,
 } from "./api";
 import { useResource } from "./hooks";
+import Research from "./Research";
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -720,6 +721,7 @@ export default function App() {
     ? selected
     : charities.data?.[0]?.charity_id || "";
   const [version, setVersion] = useState(0);
+  const [researchBusy, setResearchBusy] = useState(false);
   const [tab, setTab] = useState("portfolio");
   const portfolio = useResource<Portfolio>(
     id ? paths.portfolio(id) : null,
@@ -751,8 +753,9 @@ export default function App() {
   const before = useRef<Portfolio | undefined>(undefined);
   const oldRules = useRef<string[]>([]);
   const jobController = useRef<AbortController | null>(null);
-  const busy =
+  const baseBusy =
     pending || !!jobId || job?.status === "queued" || job?.status === "running";
+  const busy = baseBusy || researchBusy;
   const p = portfolio.data;
   const r = rules.data;
   const current = charities.data?.find((c) => c.charity_id === id);
@@ -907,6 +910,7 @@ export default function App() {
         <nav aria-label="Workspace">
           {[
             ["portfolio", "Portfolio"],
+            ["research", "Research stock"],
             ["decisions", "Agent decisions"],
             ["policy", "Policy & rules"],
             ["compare", "Compare mandates"],
@@ -936,8 +940,15 @@ export default function App() {
           charity recommendation
         </div>
         <header className="topbar">
-          <span>TRUSTEE WORKSPACE</span>
+          <span>Mandate / Research & investment</span>
           <div className="row">
+            <button
+              className="primary"
+              disabled={!id}
+              onClick={() => setTab("research")}
+            >
+              Research stock
+            </button>
             <span className="muted">{p?.as_of && `As of ${p.as_of}`}</span>
             <button
               onClick={() => {
@@ -983,6 +994,23 @@ export default function App() {
             <Compare charities={charities.data || []} open={setSource} />
           ) : (
             <>
+              {tab === "research" && id && (
+                <>
+                  <Status resource={selection} />
+                  <Status resource={portfolio} />
+                  <Research
+                    key={id}
+                    charity={id}
+                    name={current?.name || id}
+                    selection={selection.data}
+                    portfolio={p}
+                    externalBusy={!!baseBusy}
+                    onBusy={setResearchBusy}
+                    onComplete={() => setVersion((v) => v + 1)}
+                    openSource={setSource}
+                  />
+                </>
+              )}
               {tab === "decisions" && id && (
                 <>
                   <Status resource={selection} />
@@ -1078,7 +1106,36 @@ export default function App() {
               )}
               {tab === "portfolio" && (
                 <>
-                  <DecisionProcess explore={() => setTab("decisions")} />
+                  <section className="research-entry">
+                    <div>
+                      <p className="research-kicker">
+                        A considered investment starts here
+                      </p>
+                      <h2>
+                        Get to know the company
+                        <br />
+                        before it joins your portfolio.
+                      </h2>
+                      <p>
+                        Hear the ethics, financial and risk assessments
+                        together, then read the Chair’s conclusion.
+                      </p>
+                    </div>
+                    <div>
+                      <button
+                        className="primary"
+                        onClick={() => setTab("research")}
+                      >
+                        Research a stock →
+                      </button>
+                      <button
+                        className="text-button"
+                        onClick={() => setTab("decisions")}
+                      >
+                        Explore agent decisions →
+                      </button>
+                    </div>
+                  </section>
                   <Status resource={selection} />
                   {selection.data && (
                     <div className="funnel">
@@ -1542,73 +1599,83 @@ export default function App() {
                   )}
                 </>
               )}
-              <section className="panel live-rule">
-                <div>
-                  <p className="eyebrow">Put the mandate to the test</p>
-                  <h2>Add the judge’s rule</h2>
-                  <p>
-                    The agents reassess the evidence and rebuild the portfolio.
-                  </p>
-                </div>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (ruleText.trim())
-                      void start(() => api.addRule(id, ruleText.trim()));
-                  }}
-                >
-                  <label htmlFor="judge-rule">New rule</label>
-                  <textarea
-                    id="judge-rule"
-                    value={ruleText}
-                    onChange={(e) => setRuleText(e.target.value)}
-                    placeholder="Type the judge’s sentence…"
-                    required
-                    disabled={busy || !id}
-                  />
-                  <button
-                    className="primary"
-                    disabled={busy || !id || !ruleText.trim()}
-                  >
-                    {pending ? "Starting…" : busy ? "Working…" : "Apply rule →"}
-                  </button>
-                </form>
-                {actionError && (
-                  <div className="notice" role="alert">
-                    {actionError}
-                    {!jobId && lastJobId && (
-                      <button
-                        onClick={() => {
-                          setJobId(lastJobId);
-                          setJob((j) => (j ? { ...j, status: "running" } : j));
-                        }}
-                      >
-                        Check job
-                      </button>
-                    )}
-                  </div>
-                )}
-                {job && (
-                  <div className="job-panel">
-                    <Badge>{job.status}</Badge>
+              {tab !== "research" && (
+                <section className="panel live-rule">
+                  <div>
+                    <p className="eyebrow">Put the mandate to the test</p>
+                    <h2>Add the judge’s rule</h2>
                     <p>
-                      {charities.data?.find((c) => c.charity_id === jobCharity)
-                        ?.name || jobCharity}
+                      The agents reassess the evidence and rebuild the
+                      portfolio.
                     </p>
-                    <div
-                      className="live-log"
-                      ref={logRef}
-                      role="log"
-                      aria-live="polite"
-                      aria-label="Job progress"
-                    >
-                      {job.progress.map((message, i) => (
-                        <p key={i}>› {message}</p>
-                      ))}
-                    </div>
                   </div>
-                )}
-              </section>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (ruleText.trim())
+                        void start(() => api.addRule(id, ruleText.trim()));
+                    }}
+                  >
+                    <label htmlFor="judge-rule">New rule</label>
+                    <textarea
+                      id="judge-rule"
+                      value={ruleText}
+                      onChange={(e) => setRuleText(e.target.value)}
+                      placeholder="Type the judge’s sentence…"
+                      required
+                      disabled={busy || !id}
+                    />
+                    <button
+                      className="primary"
+                      disabled={busy || !id || !ruleText.trim()}
+                    >
+                      {pending
+                        ? "Starting…"
+                        : busy
+                          ? "Working…"
+                          : "Apply rule →"}
+                    </button>
+                  </form>
+                  {actionError && (
+                    <div className="notice" role="alert">
+                      {actionError}
+                      {!jobId && lastJobId && (
+                        <button
+                          onClick={() => {
+                            setJobId(lastJobId);
+                            setJob((j) =>
+                              j ? { ...j, status: "running" } : j,
+                            );
+                          }}
+                        >
+                          Check job
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {job && (
+                    <div className="job-panel">
+                      <Badge>{job.status}</Badge>
+                      <p>
+                        {charities.data?.find(
+                          (c) => c.charity_id === jobCharity,
+                        )?.name || jobCharity}
+                      </p>
+                      <div
+                        className="live-log"
+                        ref={logRef}
+                        role="log"
+                        aria-live="polite"
+                        aria-label="Job progress"
+                      >
+                        {job.progress.map((message, i) => (
+                          <p key={i}>› {message}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              )}
             </>
           )}
         </main>

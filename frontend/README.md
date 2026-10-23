@@ -92,3 +92,48 @@ on the portfolio page explains the ethics gate and links into this workspace.
 The current preview remains explicitly synthetic. The updated workspace was
 opened and inspected in the browser after the initial connection issue was
 resolved; actual projector zoom checks remain a demo-computer task.
+
+## Research stock flow
+
+Research stock opens a company selector scoped to the selected charity. Starting
+research uses the existing company refresh job, displays three agent cards,
+polls once a second, and shows high-level activity supplied by the API. This is
+not a display of private model reasoning. On completion the cards flash green
+(disabled for reduced motion), and the page scrolls to the Chair's findings.
+The research page omits the judge-rule form to keep this flow focused.
+
+The optional progress convention is `[melchior] message`, `[balthasar] message`,
+`[casper] message`, with `:done` before the closing bracket to mark completion.
+Only explicit tagged activity enters the respective card; general messages
+remain in the full log. Without per-agent events, the cards wait until the job
+finishes rather than simulating progress. The real API must publish the new
+company report before marking its job done. Refresh is global under the
+existing API contract; the UI loads the chosen charity's report afterwards.
+
+`frontend/research_summary.py` computes supplementary presentation metadata in
+the Flask adapter's `X-Mandate-Research` response header. Company JSON schemas
+remain unchanged. Three explicit INVEST votes mean Strong buy, two mean Buy,
+and two DO_NOT_INVEST votes mean Reject. A verified ethics FAIL always blocks
+approval; ethics FLAG/unverified evidence or a recorded trustee-review decision
+requires trustee review. An existing recorded rejection is never overridden.
+The displayed committee consensus is separate from these safeguards. The
+portfolio is still produced by the constrained optimiser, not by these labels.
+
+The Verified ethics score is `100 * verified PASS checks / all returned rule
+checks`. It is a defined coverage metric, not a calibrated confidence or a
+probability that a company is ethical. No model confidence is relabelled as a
+measured probability. Missing checks give no score.
+
+Real financial/risk votes must be supplied by the API owner through
+`app.config['MANDATE_RESEARCH_VOTES']`, a callable receiving the request path
+and returning explicit balthasar/casper votes. No score threshold is guessed.
+Missing votes produce no majority label. The fixture server provides clearly
+labelled synthetic votes: TEST demonstrates Strong buy, CAPPED Buy, DECLINE a
+financial/risk rejection, VETO the ethics override, and REVIEW trustee review.
+Fixture activity is simulated and does not call real models or external APIs.
+
+The page retains readable failure states and can reconnect to the same job
+without submitting another refresh. Previous completed assessments remain
+clearly labelled on an error. The design uses a restrained paper/ink palette,
+editorial type and quiet separators; the agent cards run side by side on large
+screens and remain readable on narrow screens.
