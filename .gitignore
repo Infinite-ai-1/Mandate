@@ -192,3 +192,5 @@ pyrightconfig.json
 .venv
 # Raw API + LLM cache (data/processed/ is committed for the demo)
 data/cache/
+
+.DS_Store

@@ -1,0 +1,63 @@
+THE NUFFIELD OXFORD HOSPITALS FUND (NOHF)
+Registered charity no. 212575. Formerly the Oxford and District Hospitals
+Improvement and Development Fund.
+
+SOURCE NOTE: there is no published ethics policy, investment policy, or
+ethical screening document for this charity -- confirmed by searching its own
+grant page, the Oxford University Hospitals NHS Foundation Trust's hosting
+page for it, and the Charity Commission register. What follows is its real,
+verbatim stated purpose and operating facts, drawn from
+https://www.ouh.nhs.uk/services/grants/nuffield-oxford-hospitals-fund/ and
+https://www.medsci.ox.ac.uk/for-staff/resources/school-of-medicine-and-
+biomedical-sciences/medicine/resources/nuffield-oxford-hospitals-fund.
+
+Per CLAUDE.md, this is the charity for which the compiler should propose
+rules from purpose rather than extract them from a policy, since none exists.
+No "no tobacco" or other exclusion clause is added here -- unlike
+cancer_research_wales.txt, this charity's purpose (funding medical education
+infrastructure, not health research into a specific disease) does not make
+any particular industry exclusion self-evident, so inventing one would not be
+a defensible inference.
+
+================================================================================
+
+HISTORY AND ESTABLISHMENT
+
+The fund was established through a generous benefaction from Lord Nuffield in
+1937. It was formerly known as the Oxford and District Hospitals Improvement
+and Development Fund.
+
+PURPOSE (every grant application must meet this test, verbatim as stated by
+the Fund)
+
+"The raising of the standard of the hospital or hospitals concerned in order
+to assist the development and carrying on of the Oxford University Medical
+School."
+
+HOW IT OPERATES
+
+The Nuffield Oxford Hospitals Fund gives grants to a total of around £450,000
+every year. Applications operate on an annual cycle, with submissions due by
+the end of January each year, reviewed by Trustees meeting in May or June.
+Recent grants have typically been in the £10,000 to £40,000 range; the
+Trustees do not allocate grants for less than £5,000.
+
+WHAT IT FUNDS
+
+NOHF funds items of equipment and larger projects across multiple hospital
+specialties, in direct support of the Oxford University Medical School's
+training of doctors in Oxfordshire. Past grants have supported: upgrades to
+educational facilities and medical student spaces; educational films and
+communication training; building extensions; medical equipment (manikins,
+microscopes); simulator training facilities; healthcare library resources
+(including desktops and laptops); seminar room and hybrid audio-visual
+teaching equipment; and publication of paediatric surgical oncology
+guidebooks.
+
+NO STATED ETHICAL OR INVESTMENT POLICY
+
+No document setting out how the Fund's own assets are invested, or what
+industries or company types it would decline to invest in, is published.
+Trustee questions for this charity (per CLAUDE.md's schema) should therefore
+ask the charity's trustees directly what limits they want applied, rather
+than assume any.
