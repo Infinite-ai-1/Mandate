@@ -41,10 +41,13 @@ def _search_page(query, from_date, page):
     return resp.json()
 
 
-def fetch_news(ticker, company_name=None, years=RECENT_YEARS):
+def fetch_news(ticker, company_name=None, years=RECENT_YEARS, bypass_cache=False):
     """Searches the Guardian for `company_name` (falls back to `ticker` if no
     name given) over the last `years` years, ingesting each hit's body text as a
-    Chunk. -> number of new chunks added.
+    Chunk. bypass_cache=True re-fetches live even if a cached response exists,
+    for ingest.refresh.refresh() and search_new_topic() (pass a query that
+    already includes the new topic's keywords as part of `company_name`).
+    -> number of new chunks added.
     """
     if not _api_key():
         print(f"[guardian] no GUARDIAN_API_KEY set, skipping news for {ticker}")
@@ -56,7 +59,8 @@ def fetch_news(ticker, company_name=None, years=RECENT_YEARS):
     total_new = 0
     for page in range(1, MAX_PAGES + 1):
         params = {"ticker": ticker, "query": query, "from_date": from_date, "page": page}
-        data = cached_fetch("guardian_search", params, lambda p=page: _search_page(query, from_date, p))
+        data = cached_fetch("guardian_search", params, lambda p=page: _search_page(query, from_date, p),
+                             bypass_cache=bypass_cache)
         if not data:
             break
         response = data.get("response", {})

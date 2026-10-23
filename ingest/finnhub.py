@@ -38,9 +38,15 @@ def _get(path, params):
     return resp.json()
 
 
-def fetch_news(ticker, months=RECENT_MONTHS):
+def fetch_news(ticker, months=RECENT_MONTHS, bypass_cache=False, keywords=None):
     """Ingests Finnhub company news from the last `months` months as Chunks.
-    -> number of new chunks added."""
+    bypass_cache=True re-fetches live even if a cached response exists, for
+    ingest.refresh.refresh(). keywords, if given, keeps only articles whose
+    headline+summary mention at least one keyword (case-insensitive) --
+    Finnhub's API has no server-side keyword search, so this is how
+    ingest.refresh.search_new_topic() filters a company-news pull down to a
+    judge's newly-added topic. -> number of new chunks added.
+    """
     if not _api_key():
         print(f"[finnhub] no FINNHUB_API_KEY set, skipping news for {ticker}")
         return 0
@@ -48,7 +54,8 @@ def fetch_news(ticker, months=RECENT_MONTHS):
     today = datetime.date.today()
     start = today - datetime.timedelta(days=months * 31)
     params = {"symbol": ticker, "from": start.isoformat(), "to": today.isoformat()}
-    items = cached_fetch("finnhub_news", params, lambda: _get("company-news", params))
+    items = cached_fetch("finnhub_news", params, lambda: _get("company-news", params),
+                          bypass_cache=bypass_cache)
     if not items:
         return 0
 
@@ -58,6 +65,8 @@ def fetch_news(ticker, months=RECENT_MONTHS):
         if item.get("summary"):
             text = f"{text}. {item['summary']}".strip(". ").strip()
         if not text:
+            continue
+        if keywords and not any(kw.lower() in text.lower() for kw in keywords):
             continue
         try:
             date = datetime.datetime.utcfromtimestamp(item["datetime"]).date().isoformat()
