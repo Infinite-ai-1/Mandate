@@ -13,6 +13,10 @@ Cancer Research Wales's supplied document does not state a tobacco exclusion;
 the invented demo clause was removed. Do not silently reintroduce it.
 All areas may be changed when needed for an explicitly requested integration.
 Test doubles must stay inside tests and never become application data.
+User-authorized exception: the Research page contains four starred, explicitly
+labelled scripted stock scenarios in DemoResearch.tsx. They illustrate the four
+decision paths, make no network calls, and never modify real assessments or accounts.
+Devil's advocate for real portfolios is calculated from actual run conditions.
 
 ## What we're building
 An AI analyst for UK charities (Microsoft x LSEG Hackathon 2026). A charity pastes its ethics

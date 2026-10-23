@@ -99,3 +99,16 @@ missing data, source resolution, ethics vetoes, cache-only mode, portfolio math,
 React policy saving and Flask asset serving. Test recommendations are never
 loaded by the application. Live checks require valid credentials and provider
 access; offline tests alone do not establish external-service availability.
+
+## Starred demo scenarios
+
+Research stock includes four starred, scripted walkthroughs: XYL (Approved),
+MSFT (Approved with a cap), PM (Rejected), MMM (Trustee review). The company names
+are illustrative; scenario assumptions and outcomes are simulated, independent
+of the selected charity's actual policy or current research. Each walks through
+three specialists, a Chair decision and specific Devil's advocate challenges.
+They make no model calls and cannot allocate cash or overwrite actual results.
+
+The real portfolio's Devil's advocate is calculated from the actual assessment,
+including evidence gaps, bond-screening exemptions, assumed limits, relaxations,
+concentration and historical benchmark shortfall. It works for saved runs too.

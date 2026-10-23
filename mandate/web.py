@@ -178,6 +178,7 @@ class Workspace:
                     memo="", devils_advocate=[], run_stats=dict(seconds=0, llm_calls=0, tokens=0, by_agent={}))
 
     def portfolio(self, cid):
+        from .challenges import build_challenges
         run = self.run(cid)
         opt = run["optimiser"]
         p = self.empty_portfolio(cid)
@@ -190,7 +191,7 @@ class Workspace:
                  rejected=[d for d in decisions.values() if d["decision"] == "REJECT"],
                  trustee_review=[d for d in decisions.values() if d["decision"] == "TRUSTEE_REVIEW"],
                  relaxed=opt["relaxed"] + ([opt["error"]] if opt.get("error") else []), memo="" if run.get("memo_stale") else run["memo"],
-                 devils_advocate=run.get("warnings", []), run_stats=dict(seconds=run["stats"]["wall_seconds"],
+                 devils_advocate=build_challenges(run), run_stats=dict(seconds=run["stats"]["wall_seconds"],
                     llm_calls=run["stats"]["llm_calls"], tokens=run["stats"]["tokens"], by_agent=run["stats"]["by_agent"]))
         bt = opt.get("backtest") or {}
         p["risk"] = dict(worst_12m=bt.get("worst_12m_return"), volatility=bt.get("annual_vol"), vs_6040_return=bt.get("vs_6040"))

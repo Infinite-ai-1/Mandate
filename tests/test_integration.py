@@ -143,6 +143,19 @@ class IntegrationTests(unittest.TestCase):
 
 
 class VerificationTests(unittest.TestCase):
+    def test_devils_advocate_uses_actual_run_conditions(self):
+        from mandate.challenges import build_challenges
+        run = dict(decisions=[dict(ticker="XYL", status="TRUSTEE_REVIEW")],
+                   policy=dict(limits=dict(min_bonds=dict(value=.3, origin="assumed"))),
+                   optimiser=dict(ok=True, holdings=[dict(ticker="BND", is_bond=True, weight=.25)],
+                                  relaxed=["Income target dropped"], backtest=dict(vs_6040=-.125)))
+        text = " ".join(build_challenges(run))
+        for expected in ("XYL", "underlying issuers", "min bonds", "Income target dropped", "12.5 percentage points", "BND at 25.0%"):
+            self.assertIn(expected, text)
+        clean = dict(decisions=[], policy=dict(limits={}), optimiser=dict(ok=True, holdings=[], backtest=dict(vs_6040=.1)))
+        self.assertNotIn("trails", " ".join(build_challenges(clean)))
+        self.assertNotIn("unresolved", " ".join(build_challenges(clean)))
+
     def test_parallel_unsupported_parameter_responses_each_retry(self):
         import httpx
         import openai

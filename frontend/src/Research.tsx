@@ -13,6 +13,7 @@ import {
 } from "./api";
 import type { Purchase } from "./api";
 import InvestmentPanel from "./InvestmentPanel";
+import DemoResearch from "./DemoResearch";
 
 const agents: ResearchAgent[] = ["melchior", "balthasar", "casper"];
 const names = {
@@ -227,6 +228,7 @@ export default function Research({
     result?.report.decision.ticker === active;
   return (
     <div className="research-page">
+      <DemoResearch disabled={running || externalBusy} />
       <section className="research-intro">
         <p className="research-kicker">Stock research</p>
         <h2>
