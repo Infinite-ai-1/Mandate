@@ -339,29 +339,35 @@ export default function Research({
                             : "Interrupted"}
                       </span>
                     </header>
-                    <div
-                      className="research-activity"
-                      role="log"
-                      aria-live="polite"
-                      aria-label={`${names[agent]} activity`}
-                    >
-                      {messages.length ? (
-                        messages.map((message, i) => (
-                          <p key={i}>{message.text}</p>
-                        ))
-                      ) : (
-                        <p className="muted">
-                          {running
-                            ? "Waiting for an agent update from the API."
-                            : "No individual progress messages were supplied."}
-                        </p>
-                      )}
-                    </div>
+                    {(messages.length > 0 || running) && (
+                      <div
+                        className="research-activity"
+                        role="log"
+                        aria-live="polite"
+                        aria-label={`${names[agent]} activity`}
+                      >
+                        {messages.length ? (
+                          messages.map((message, i) => (
+                            <p key={i}>{message.text}</p>
+                          ))
+                        ) : (
+                          <p className="muted">
+                            Waiting for an agent update from the API.
+                          </p>
+                        )}
+                      </div>
+                    )}
                     {report && result && (
                       <div className="agent-finding">
-                        <p className="model-label">{report.model}</p>
+                        {report.model && (
+                          <p className="model-label">{report.model}</p>
+                        )}
                         <h4>
-                          {vote ? voteLabel[vote] : "Assessment received"}
+                          {vote
+                            ? voteLabel[vote]
+                            : agent !== "melchior" && !report.model
+                              ? "Not run"
+                              : "Assessment received"}
                         </h4>
                         {agent === "melchior" ? (
                           result.report.melchior.verdicts.map((v, i) => (
@@ -457,75 +463,41 @@ export default function Research({
                   </h2>
                   {sources(result.report.decision.source_ids)}
                 </div>
-                <div className="ethics-measure">
-                  <span>{result.report.simulated ? "Simulated ethics coverage" : "Verified ethics score"}</span>
-                  <strong>
-                    {summary?.ethics_score === null ||
-                    summary?.ethics_score === undefined
-                      ? "Unavailable"
-                      : format.format(summary.ethics_score)}
-                    {summary?.ethics_score !== null &&
-                      summary?.ethics_score !== undefined && (
+                {summary?.ethics_score !== null &&
+                  summary?.ethics_score !== undefined && (
+                    <div className="ethics-measure">
+                      <span>{result.report.simulated ? "Simulated ethics coverage" : "Verified ethics score"}</span>
+                      <strong>
+                        {format.format(summary.ethics_score)}
                         <small> / 100</small>
-                      )}
-                  </strong>
-                  <p>
-                    {summary?.ethics_definition ||
-                      "The API has not supplied a verified ethics measure."}
-                  </p>
-                </div>
+                      </strong>
+                      <p>{summary.ethics_definition}</p>
+                    </div>
+                  )}
               </div>
               <div className="research-voting">
                 <h3>Where the committee stands</h3>
-                {summary ? (
+                {summary && (
                   <>
-                    <div className="vote-list">
-                      {agents.map((agent) => (
-                        <p key={agent}>
-                          <strong>{names[agent]}</strong>
-                          <span>
-                            {summary.votes[agent]
-                              ? voteLabel[summary.votes[agent]!]
-                              : "Vote not supplied"}
-                          </span>
-                        </p>
-                      ))}
-                    </div>
-                    {summary.invest_votes !== null && (
-                      <p>
-                        {format.format(summary.invest_votes)} of three agents
-                        favour investing.
-                        {summary.consensus && (
-                          <>
-                            {" "}
-                            Committee consensus:{" "}
-                            <strong>{ratingLabel[summary.consensus]}</strong>.
-                          </>
-                        )}
-                      </p>
-                    )}
+                    <p>
+                      <strong>Melchior</strong>{" "}
+                      <span>
+                        {summary.votes.melchior
+                          ? voteLabel[summary.votes.melchior]
+                          : decisionLabels[result.report.decision.decision]}
+                      </span>
+                    </p>
                     {summary.ethics_blocked && (
                       <p className="ethics-override">
                         Ethics veto: verified evidence fails the mandate. A
                         majority in favour cannot override this exclusion.
                       </p>
                     )}
-                    {summary.consensus === null && (
-                      <p className="muted">
-                        A consensus label needs explicit financial and risk
-                        votes from the API. Scores are not converted into votes.
-                      </p>
-                    )}
                   </>
-                ) : (
-                  <p>
-                    The API has not supplied explicit votes. No majority rating
-                    has been invented.
-                  </p>
                 )}
                 <p className="research-caption">
-                  Three invest votes: strong buy. Two: buy. Two votes against:
-                  reject. Unresolved evidence goes to trustees. Ethics
+                  The final recommendation above already weighs Balthasar's
+                  and Casper's findings alongside Melchior's. Ethics
                   exclusions take priority.
                 </p>
               </div>

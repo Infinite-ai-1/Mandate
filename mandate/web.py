@@ -134,6 +134,12 @@ class Workspace:
         if not d:
             raise ServiceError("Company has not been assessed for this charity", 404)
         def specialist(agent):
+            # d[agent] is None (not {}) when decide.py's ethics veto short-circuited before this
+            # specialist ever ran -- distinct from the specialist running and verifying nothing.
+            # Conflating the two used to render an identical, misleadingly-blank "Assessment
+            # received" card (with a model name attached, as if that model had been called) for
+            # every ethics-excluded company, looking exactly like the agent was broken.
+            not_run = d.get(agent) is None
             value = d.get(agent) or {}
             reasons = []
             for verified, key in ((True, "reasons"), (False, "unverified")):
@@ -142,8 +148,20 @@ class Workspace:
                     reasons.append(dict(claim=r["text"], source_ids=ids, verified=verified))
             # The displayed number is calculated verification coverage, not an LLM rating.
             score = 100 * sum(r["verified"] for r in reasons) / len(reasons) if reasons else None
-            return dict(ticker=ticker, agent=agent, model=run.get("stats", {}).get("models", {}).get(agent, ""),
-                        score=score, reasons=reasons, summary=value.get("note") or " ".join(r["claim"] for r in reasons if r["verified"]))
+            if not_run:
+                veto = d.get("veto") or {}
+                if veto.get("rule_id"):
+                    summary = (f"Not run: {ticker} was already excluded on ethics grounds "
+                               f"(rule {veto['rule_id']}) before financial and risk analysis would start.")
+                else:
+                    summary = (f"Not run: {ticker} needs trustee review before financial and risk "
+                               "analysis would start, because the ethics screening had no verified "
+                               "rule checks to apply (the policy has no adopted rules yet).")
+                model = ""
+            else:
+                summary = value.get("note") or " ".join(r["claim"] for r in reasons if r["verified"])
+                model = run.get("stats", {}).get("models", {}).get(agent, "")
+            return dict(ticker=ticker, agent=agent, model=model, score=score, reasons=reasons, summary=summary)
         verdicts = [dict(v, quote=v.get("quote") or "", source_id=v.get("source_id") or "",
                          confidence=1.0 if v.get("verified") else 0.0)
                     for v in (d.get("melchior") or {}).get("verdicts", [])]

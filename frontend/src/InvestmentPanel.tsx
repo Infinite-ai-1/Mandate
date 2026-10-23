@@ -89,14 +89,12 @@ export default function InvestmentPanel({
               {money.format(quote.data.suggested_usd)}
             </p>
             <p>{quote.data.reason}</p>
-            <p className="investment-confidence">
-              Evidence confidence:{" "}
-              <strong>
-                {quote.data.confidence_score === null
-                  ? "Unavailable"
-                  : `${score.format(quote.data.confidence_score)} / 100`}
-              </strong>
-            </p>
+            {quote.data.confidence_score !== null && (
+              <p className="investment-confidence">
+                Evidence confidence:{" "}
+                <strong>{score.format(quote.data.confidence_score)} / 100</strong>
+              </p>
+            )}
             <p className="research-caption">
               {quote.data.confidence_definition}
             </p>

@@ -216,10 +216,12 @@ function ScoreCard({
   return (
     <article className="agent-card">
       <p className="eyebrow">{report.agent}</p>
-      <h3>{report.model}</h3>
-      <p className="score">
-        {report.score === null ? "Unavailable" : number.format(report.score)} <span>verified evidence coverage (%)</span>
-      </p>
+      {report.model && <h3>{report.model}</h3>}
+      {report.score !== null && (
+        <p className="score">
+          {number.format(report.score)} <span>verified evidence coverage (%)</span>
+        </p>
+      )}
       <p>{report.summary}</p>
       {report.reasons.map((r, i) => (
         <div className="claim" key={i}>
@@ -730,7 +732,7 @@ function StatsDetails({
         <div className="risk-grid">
           <RiskCard
             title="Trailing dividend yield"
-            value={p.risk.yield === null ? "Unavailable" : percent.format(p.risk.yield)}
+            value={p.risk.yield === null ? "—" : percent.format(p.risk.yield)}
             ok={p.checks.yield_ok ?? undefined}
             limit={
               r
@@ -740,7 +742,7 @@ function StatsDetails({
           />
           <RiskCard
             title="Worst twelve-month return check"
-            value={p.checks.max_drawdown_ok === null ? "Not assessed" : p.checks.max_drawdown_ok ? "Within limit" : "Outside limit"}
+            value={p.checks.max_drawdown_ok === null ? "—" : p.checks.max_drawdown_ok ? "Within limit" : "Outside limit"}
             ok={p.checks.max_drawdown_ok ?? undefined}
             limit={
               r
@@ -750,7 +752,7 @@ function StatsDetails({
           />
           <RiskCard
             title="Bond allocation check"
-            value={p.checks.bonds_ok === null ? "Not assessed" : p.checks.bonds_ok ? "Within limit" : "Outside limit"}
+            value={p.checks.bonds_ok === null ? "—" : p.checks.bonds_ok ? "Within limit" : "Outside limit"}
             ok={p.checks.bonds_ok ?? undefined}
             limit={
               r
@@ -760,15 +762,15 @@ function StatsDetails({
           />
           <RiskCard
             title="Annualised volatility"
-            value={p.risk.volatility === null ? "Unavailable" : percent.format(p.risk.volatility)}
+            value={p.risk.volatility === null ? "—" : percent.format(p.risk.volatility)}
           />
           <RiskCard
             title="Worst rolling twelve months"
-            value={p.risk.worst_12m === null ? "Unavailable" : percent.format(p.risk.worst_12m)}
+            value={p.risk.worst_12m === null ? "—" : percent.format(p.risk.worst_12m)}
           />
           <RiskCard
             title="Return vs SPY / BND benchmark"
-            value={p.risk.vs_6040_return === null ? "Unavailable" : percent.format(p.risk.vs_6040_return)}
+            value={p.risk.vs_6040_return === null ? "—" : percent.format(p.risk.vs_6040_return)}
           />
         </div>
         <p className="muted">
@@ -1456,7 +1458,9 @@ export default function App() {
                           </p>
                           <div className="row">
                             <Badge>Cash {money.format(p.cash_usd)}</Badge>
-                            <Badge>GBP/USD {p.gbpusd === null ? "Unavailable" : number.format(p.gbpusd)}</Badge>
+                            {p.gbpusd !== null && (
+                              <Badge>GBP/USD {number.format(p.gbpusd)}</Badge>
+                            )}
                           </div>
                           {!totals && (
                             <p className="muted small">
