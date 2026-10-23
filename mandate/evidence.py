@@ -114,3 +114,7 @@ def retrieve_text(ticker: str, query: str, keywords: list[str] | None = None, k:
 
 def retrieve(ticker: str, rule: Rule, k: int = C.TOP_K_PER_RULE) -> list[Chunk]:
     return retrieve_text(ticker, rule.text + " " + " ".join(rule.keywords), rule.keywords, k)
+
+
+def format_chunks(chunks: list[Chunk]) -> str:
+    return "\n".join(f'<chunk id="{c.source_id}">{c.text}</chunk>' for c in chunks) or "(no evidence found)"

@@ -99,6 +99,8 @@ class Verdict(Base):
     quote: Optional[str] = None
     source_id: Optional[str] = None
     reason: str = ""
+    verified: Optional[bool] = None     # set by verify.py, never trusted from the model
+    downgraded: bool = False            # True when an unverified FAIL became a FLAG
 
 
 class MelchiorOutput(Base):
@@ -143,3 +145,65 @@ class ChairOutput(Base):
     ticker: str
     decision: Literal["full", "reduced", "reject"]
     reasons: list[ChairReason]
+
+
+# ---- After verification (what the rest of the code sees) ----
+class MelchiorResult(Base):
+    ticker: str
+    verdicts: list[Verdict]             # one per rule, FAILs verified or downgraded
+
+
+class FinResult(Base):
+    ticker: str
+    score: Optional[int] = None         # None when no reason survived verification
+    reasons: list[FinReason] = []       # verified
+    unverified: list[FinReason] = []
+    note: str = ""
+
+
+class RiskResult(Base):
+    ticker: str
+    score: Optional[int] = None
+    reasons: list[RiskReason] = []
+    unverified: list[RiskReason] = []
+    note: str = ""
+
+
+class ChairResult(Base):
+    ticker: str
+    decision: Literal["full", "reduced", "reject"]
+    reasons: list[ChairReason] = []
+    unverified: list[ChairReason] = []
+    links: dict[str, str] = {}          # source_id -> url
+    defaulted: bool = False             # True if the Chair call failed and we defaulted to reduced
+
+
+Status = Literal["REJECTED_ETHICS", "TRUSTEE_REVIEW", "APPROVED", "REJECTED_CHAIR"]
+
+
+class CompanyDecision(Base):
+    ticker: str
+    status: Status
+    cap: float
+    reason: str = ""
+    veto: Optional[Verdict] = None      # the verified FAIL behind REJECTED_ETHICS
+    melchior: Optional[MelchiorResult] = None
+    balthasar: Optional[FinResult] = None
+    casper: Optional[RiskResult] = None
+    chair: Optional[ChairResult] = None
+
+
+class ResolvedPolicy(Base):
+    """Compiler output after code checks: quotes verified, limits and weights merged with defaults."""
+    charity: str
+    purpose_summary: str = ""
+    rules: list[Rule] = []              # verified policy rules + approved mission conflicts
+    unverified_rules: list[Rule] = []
+    proposed_mission_conflicts: list[ProposedConflict] = []
+    vague_wording: list[VagueWording] = []
+    limits: Limits
+    weights: Weights
+
+
+class MemoOutput(Base):
+    memo: str
