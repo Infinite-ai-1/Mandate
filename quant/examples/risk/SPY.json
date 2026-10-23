@@ -1,0 +1,40 @@
+{
+  "ticker": "SPY",
+  "metrics": [
+    {
+      "name": "annualised_volatility",
+      "value": 0.10415738238042686,
+      "unit": "fraction",
+      "as_of": "2026-01-23",
+      "source_id": "Q-SPY-annualised_volatility"
+    },
+    {
+      "name": "max_drawdown",
+      "value": -0.35929323950788805,
+      "unit": "fraction",
+      "as_of": "2026-01-23",
+      "source_id": "Q-SPY-max_drawdown"
+    },
+    {
+      "name": "worst_12m",
+      "value": -0.2820563130155471,
+      "unit": "fraction",
+      "as_of": "2026-01-23",
+      "source_id": "Q-SPY-worst_12m"
+    },
+    {
+      "name": "beta",
+      "value": 1.0,
+      "unit": "ratio",
+      "as_of": "2026-01-23",
+      "source_id": "Q-SPY-beta"
+    },
+    {
+      "name": "dividend_yield",
+      "value": 0.005533425126320424,
+      "unit": "fraction",
+      "as_of": "2026-01-23",
+      "source_id": "Q-SPY-dividend_yield"
+    }
+  ]
+}

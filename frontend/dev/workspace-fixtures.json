@@ -1,0 +1,622 @@
+{
+  "/api/charities/cancer_research_wales/account": {
+    "charity_id": "cancer_research_wales",
+    "chart": [
+      {
+        "ticker": "Cash",
+        "usd": 100000.0,
+        "weight": 1.0
+      }
+    ],
+    "invested_usd": 0,
+    "policy_revision": 1,
+    "portfolio": {
+      "as_of": "2026-01-23",
+      "cash_usd": 100000.0,
+      "charity_id": "cancer_research_wales",
+      "checks": {
+        "bonds_ok": false,
+        "max_drawdown_ok": true,
+        "yield_ok": false
+      },
+      "devils_advocate": [
+        "Synthetic prices cannot support an investment decision.",
+        "The historical replay excludes costs and taxes.",
+        "Assumed rules need trustee approval."
+      ],
+      "gbpusd": 1.3,
+      "holdings": [],
+      "memo": "Simulated trustee allocations. Past performance, not a forecast. Historical risk is replayed using these holdings, with no costs or taxes.",
+      "rejected": [
+        {
+          "cap": 0.0,
+          "decided_by": "code_veto",
+          "decision": "REJECT",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-VETO-TEST"
+          ],
+          "ticker": "VETO",
+          "weighted_score": null
+        },
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "REJECT",
+          "reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not.",
+          "source_ids": [
+            "S-DECLINE-TEST"
+          ],
+          "ticker": "DECLINE",
+          "weighted_score": null
+        }
+      ],
+      "relaxed": [],
+      "risk": {
+        "volatility": 0.0,
+        "vs_6040_return": -0.17973450011568537,
+        "worst_12m": 0.0,
+        "yield": 0.0
+      },
+      "run_stats": {
+        "by_agent": {},
+        "llm_calls": 0,
+        "seconds": 0.0,
+        "tokens": 0
+      },
+      "total_usd": 100000.0,
+      "trustee_review": [
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "TRUSTEE_REVIEW",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-REVIEW-TEST"
+          ],
+          "ticker": "REVIEW",
+          "weighted_score": null
+        }
+      ]
+    },
+    "presentation": {
+      "bonds_weight": 0,
+      "cash_weight": 1.0,
+      "holdings_count": 0,
+      "shares_weight": 0,
+      "total_gbp": 76923.07692307692
+    },
+    "simulated": true,
+    "to_verify": []
+  },
+  "/api/charities/british_thoracic_society/account": {
+    "charity_id": "british_thoracic_society",
+    "chart": [
+      {
+        "ticker": "Cash",
+        "usd": 100000.0,
+        "weight": 1.0
+      }
+    ],
+    "invested_usd": 0,
+    "policy_revision": 1,
+    "portfolio": {
+      "as_of": "2026-01-23",
+      "cash_usd": 100000.0,
+      "charity_id": "british_thoracic_society",
+      "checks": {
+        "bonds_ok": false,
+        "max_drawdown_ok": true,
+        "yield_ok": false
+      },
+      "devils_advocate": [
+        "Synthetic prices cannot support an investment decision.",
+        "The historical replay excludes costs and taxes.",
+        "Assumed rules need trustee approval."
+      ],
+      "gbpusd": 1.3,
+      "holdings": [],
+      "memo": "Simulated trustee allocations. Past performance, not a forecast. Historical risk is replayed using these holdings, with no costs or taxes.",
+      "rejected": [
+        {
+          "cap": 0.0,
+          "decided_by": "code_veto",
+          "decision": "REJECT",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-VETO-TEST"
+          ],
+          "ticker": "VETO",
+          "weighted_score": null
+        },
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "REJECT",
+          "reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not.",
+          "source_ids": [
+            "S-DECLINE-TEST"
+          ],
+          "ticker": "DECLINE",
+          "weighted_score": null
+        }
+      ],
+      "relaxed": [],
+      "risk": {
+        "volatility": 0.0,
+        "vs_6040_return": -0.17973450011568537,
+        "worst_12m": 0.0,
+        "yield": 0.0
+      },
+      "run_stats": {
+        "by_agent": {},
+        "llm_calls": 0,
+        "seconds": 0.0,
+        "tokens": 0
+      },
+      "total_usd": 100000.0,
+      "trustee_review": [
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "TRUSTEE_REVIEW",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-REVIEW-TEST"
+          ],
+          "ticker": "REVIEW",
+          "weighted_score": null
+        }
+      ]
+    },
+    "presentation": {
+      "bonds_weight": 0,
+      "cash_weight": 1.0,
+      "holdings_count": 0,
+      "shares_weight": 0,
+      "total_gbp": 76923.07692307692
+    },
+    "simulated": true,
+    "to_verify": []
+  },
+  "/api/charities/british_red_cross/account": {
+    "charity_id": "british_red_cross",
+    "chart": [
+      {
+        "ticker": "Cash",
+        "usd": 100000.0,
+        "weight": 1.0
+      }
+    ],
+    "invested_usd": 0,
+    "policy_revision": 1,
+    "portfolio": {
+      "as_of": "2026-01-23",
+      "cash_usd": 100000.0,
+      "charity_id": "british_red_cross",
+      "checks": {
+        "bonds_ok": false,
+        "max_drawdown_ok": true,
+        "yield_ok": false
+      },
+      "devils_advocate": [
+        "Synthetic prices cannot support an investment decision.",
+        "The historical replay excludes costs and taxes.",
+        "Assumed rules need trustee approval."
+      ],
+      "gbpusd": 1.3,
+      "holdings": [],
+      "memo": "Simulated trustee allocations. Past performance, not a forecast. Historical risk is replayed using these holdings, with no costs or taxes.",
+      "rejected": [
+        {
+          "cap": 0.0,
+          "decided_by": "code_veto",
+          "decision": "REJECT",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-VETO-TEST"
+          ],
+          "ticker": "VETO",
+          "weighted_score": null
+        },
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "REJECT",
+          "reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not.",
+          "source_ids": [
+            "S-DECLINE-TEST"
+          ],
+          "ticker": "DECLINE",
+          "weighted_score": null
+        }
+      ],
+      "relaxed": [],
+      "risk": {
+        "volatility": 0.0,
+        "vs_6040_return": -0.17973450011568537,
+        "worst_12m": 0.0,
+        "yield": 0.0
+      },
+      "run_stats": {
+        "by_agent": {},
+        "llm_calls": 0,
+        "seconds": 0.0,
+        "tokens": 0
+      },
+      "total_usd": 100000.0,
+      "trustee_review": [
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "TRUSTEE_REVIEW",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-REVIEW-TEST"
+          ],
+          "ticker": "REVIEW",
+          "weighted_score": null
+        }
+      ]
+    },
+    "presentation": {
+      "bonds_weight": 0,
+      "cash_weight": 1.0,
+      "holdings_count": 0,
+      "shares_weight": 0,
+      "total_gbp": 76923.07692307692
+    },
+    "simulated": true,
+    "to_verify": []
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/account": {
+    "charity_id": "nuffield_oxford_hospitals_fund",
+    "chart": [
+      {
+        "ticker": "Cash",
+        "usd": 100000.0,
+        "weight": 1.0
+      }
+    ],
+    "invested_usd": 0,
+    "policy_revision": 1,
+    "portfolio": {
+      "as_of": "2026-01-23",
+      "cash_usd": 100000.0,
+      "charity_id": "nuffield_oxford_hospitals_fund",
+      "checks": {
+        "bonds_ok": false,
+        "max_drawdown_ok": true,
+        "yield_ok": false
+      },
+      "devils_advocate": [
+        "Synthetic prices cannot support an investment decision.",
+        "The historical replay excludes costs and taxes.",
+        "Assumed rules need trustee approval."
+      ],
+      "gbpusd": 1.3,
+      "holdings": [],
+      "memo": "Simulated trustee allocations. Past performance, not a forecast. Historical risk is replayed using these holdings, with no costs or taxes.",
+      "rejected": [
+        {
+          "cap": 0.0,
+          "decided_by": "code_veto",
+          "decision": "REJECT",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-VETO-TEST"
+          ],
+          "ticker": "VETO",
+          "weighted_score": null
+        },
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "REJECT",
+          "reason": "The sample financial and risk assessments both oppose investing. Ethics checks pass, but the investment case does not.",
+          "source_ids": [
+            "S-DECLINE-TEST"
+          ],
+          "ticker": "DECLINE",
+          "weighted_score": null
+        }
+      ],
+      "relaxed": [],
+      "risk": {
+        "volatility": 0.0,
+        "vs_6040_return": -0.17973450011568537,
+        "worst_12m": 0.0,
+        "yield": 0.0
+      },
+      "run_stats": {
+        "by_agent": {},
+        "llm_calls": 0,
+        "seconds": 0.0,
+        "tokens": 0
+      },
+      "total_usd": 100000.0,
+      "trustee_review": [
+        {
+          "cap": 0.0,
+          "decided_by": "chair",
+          "decision": "TRUSTEE_REVIEW",
+          "reason": "Synthetic decision for offline tests",
+          "source_ids": [
+            "S-REVIEW-TEST"
+          ],
+          "ticker": "REVIEW",
+          "weighted_score": null
+        }
+      ]
+    },
+    "presentation": {
+      "bonds_weight": 0,
+      "cash_weight": 1.0,
+      "holdings_count": 0,
+      "shares_weight": 0,
+      "total_gbp": 76923.07692307692
+    },
+    "simulated": true,
+    "to_verify": []
+  },
+  "/api/charities/cancer_research_wales/companies/TEST/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 10000.0,
+    "policy_revision": 1,
+    "price": 104.34574575857957,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 9391.12,
+    "ticker": "TEST"
+  },
+  "/api/charities/cancer_research_wales/companies/CAPPED/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 3000.0,
+    "policy_revision": 1,
+    "price": 105.08565813746198,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 2942.4,
+    "ticker": "CAPPED"
+  },
+  "/api/charities/cancer_research_wales/companies/VETO/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 109.10838461453021,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "VETO"
+  },
+  "/api/charities/cancer_research_wales/companies/REVIEW/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 115.86970903087648,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "REVIEW"
+  },
+  "/api/charities/cancer_research_wales/companies/DECLINE/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": null,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "DECLINE"
+  },
+  "/api/charities/british_thoracic_society/companies/TEST/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 10000.0,
+    "policy_revision": 1,
+    "price": 104.34574575857957,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 9391.12,
+    "ticker": "TEST"
+  },
+  "/api/charities/british_thoracic_society/companies/CAPPED/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 3000.0,
+    "policy_revision": 1,
+    "price": 105.08565813746198,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 2942.4,
+    "ticker": "CAPPED"
+  },
+  "/api/charities/british_thoracic_society/companies/VETO/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 109.10838461453021,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "VETO"
+  },
+  "/api/charities/british_thoracic_society/companies/REVIEW/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 115.86970903087648,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "REVIEW"
+  },
+  "/api/charities/british_thoracic_society/companies/DECLINE/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": null,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "DECLINE"
+  },
+  "/api/charities/british_red_cross/companies/TEST/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 10000.0,
+    "policy_revision": 1,
+    "price": 104.34574575857957,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 9391.12,
+    "ticker": "TEST"
+  },
+  "/api/charities/british_red_cross/companies/CAPPED/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 3000.0,
+    "policy_revision": 1,
+    "price": 105.08565813746198,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 2942.4,
+    "ticker": "CAPPED"
+  },
+  "/api/charities/british_red_cross/companies/VETO/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 109.10838461453021,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "VETO"
+  },
+  "/api/charities/british_red_cross/companies/REVIEW/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 115.86970903087648,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "REVIEW"
+  },
+  "/api/charities/british_red_cross/companies/DECLINE/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": null,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "DECLINE"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/TEST/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 10000.0,
+    "policy_revision": 1,
+    "price": 104.34574575857957,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 9391.12,
+    "ticker": "TEST"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/CAPPED/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": null,
+    "buy_allowed": true,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 3000.0,
+    "policy_revision": 1,
+    "price": 105.08565813746198,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 2942.4,
+    "ticker": "CAPPED"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/VETO/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 109.10838461453021,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "VETO"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/REVIEW/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": 115.86970903087648,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "REVIEW"
+  },
+  "/api/charities/nuffield_oxford_hospitals_fund/companies/DECLINE/investment-quote": {
+    "available_usd": 100000.0,
+    "blocked_reason": "This stock is rejected, needs review, has no usable price, is awaiting policy reassessment, or has insufficient capacity in the pot.",
+    "buy_allowed": false,
+    "confidence_definition": "Percentage of this research assessment's claims with verified evidence. Not a probability of profit.",
+    "confidence_score": 100.0,
+    "maximum_usd": 0.0,
+    "policy_revision": 1,
+    "price": null,
+    "reason": "Suggested whole-share allocation from the minimum-volatility portfolio, limited by the position cap and money remaining in the pot.",
+    "suggested_usd": 0.0,
+    "ticker": "DECLINE"
+  }
+}
