@@ -292,6 +292,8 @@ async def _aembed_batch(model: str, batch: list[str]):
 
 def embed(texts: list[str]) -> list[list[float]]:
     """Embed with the embedding deployment in batches of 64. Callers cache the vectors."""
+    if C.DEMO_MODE:
+        raise DemoModeCacheMiss("DEMO_MODE: no cached embedding available; network is disabled.")
     model, out = _check_model("embed"), []
     for i in range(0, len(texts), C.EMBED_BATCH):
         t0 = time.time()
@@ -303,6 +305,8 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 async def aembed(texts: list[str]) -> list[list[float]]:
     """Async embed: batches of 64 run concurrently under the shared semaphore."""
+    if C.DEMO_MODE:
+        raise DemoModeCacheMiss("DEMO_MODE: no cached embedding available; network is disabled.")
     model = _check_model("embed")
 
     async def one(batch: list[str]) -> list[list[float]]:

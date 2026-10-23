@@ -340,6 +340,15 @@ class Workspace:
         return dict(job_id=jid)
 
     def assess(self, cid, progress, refresh=None):
+        if C.DEMO_MODE:
+            try:
+                self.run(cid)
+            except ServiceError:
+                raise ServiceError("No completed cached assessment matches this policy. Restore the keyless demo bundle or run this policy online first.", 409)
+            progress("DEMO_MODE: replaying the completed saved assessment; no network or model calls. Evidence and prices retain their original dates.")
+            if refresh:
+                progress(f"{refresh}: showing the saved assessment; offline mode cannot fetch fresh evidence.")
+            return self.portfolio(cid)
         from . import evidence, pipeline, universe
         from .sources import market, edgar, news
         text = self.policy(cid)["text"]

@@ -117,3 +117,36 @@ demo approvals just like live assessments.
 The real portfolio's Devil's advocate is calculated from the actual assessment,
 including evidence gaps, bond-screening exemptions, assumed limits, relaxations,
 concentration and historical benchmark shortfall. It works for saved runs too.
+
+## Portable keyless demo
+
+A fresh clone does not include ignored caches or completed assessments. Before the
+presentation, complete the intended charity runs online with credentials, then run:
+
+```powershell
+.venv\Scripts\python scripts/package_demo.py
+.venv\Scripts\python scripts/check_demo_bundle.py results/mandate-keyless-demo.zip
+```
+
+This produces a local ZIP with observed evidence, market and LLM caches, checksums,
+model metadata and completed assessments matching supplied published policies.
+Credentials, logs, custom policy edits and transaction ledgers are excluded.
+Paper accounts in the bundle start with the standard cash balance.
+
+On the presentation machine, install dependencies and build the frontend while
+online. Extract the ZIP into the repository root, then start the app with:
+
+```powershell
+$env:DEMO_MODE='1'
+.venv\Scripts\python api.py
+```
+
+No API keys or model deployment settings are required to display and replay the
+included completed runs. Offline reruns replay the saved result matching the policy,
+without recomputing the optimiser or issuing model requests. Research refresh shows
+the saved company assessment and explains that no fresh evidence was fetched.
+The four starred scripted scenarios work independently of these cached real runs.
+New policies, uncached charities and new evidence require another online run.
+Historical dates are retained; stale real market quotes still block allocations.
+The verifier tests a clean source copy with credentials removed and socket access
+blocked, including portfolio replay, reports, accounts, React and file checksums.

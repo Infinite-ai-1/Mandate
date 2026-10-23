@@ -194,6 +194,8 @@ pyrightconfig.json
 cache/
 data/cache/
 results/
+demo-manifest.json
+DEMO-BUNDLE-README.txt
 .env.*
 !.env.example
 node_modules/

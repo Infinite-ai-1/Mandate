@@ -181,6 +181,24 @@ class IntegrationTests(unittest.TestCase):
 
 
 class VerificationTests(unittest.TestCase):
+    def test_keyless_mode_replays_saved_result_without_pipeline(self):
+        from mandate.web import Workspace
+        ws = Workspace(Path("unused-test-state"))
+        try:
+            with patch.object(C, 'DEMO_MODE', True), patch.object(ws, 'run', return_value={}), patch.object(ws, 'portfolio', return_value={'cached': True}), patch('mandate.pipeline.run_charity', side_effect=AssertionError('No live pipeline')):
+                progress=[]
+                self.assertEqual(ws.assess(CID, progress.append, 'XYL'), {'cached': True})
+                self.assertIn('no network', progress[0])
+        finally:
+            ws.executor.shutdown()
+
+    def test_embedding_calls_cannot_escape_cache_only_mode(self):
+        from mandate.llm import embed, aembed, DemoModeCacheMiss
+        with patch.object(C, 'DEMO_MODE', True):
+            with self.assertRaises(DemoModeCacheMiss): embed(['uncached'])
+            # The offline guard must fail before reaching any asynchronous I/O.
+            with self.assertRaises(DemoModeCacheMiss): aembed(['uncached']).send(None)
+
     def test_devils_advocate_uses_actual_run_conditions(self):
         from mandate.challenges import build_challenges
         run = dict(decisions=[dict(ticker="XYL", status="TRUSTEE_REVIEW")],
