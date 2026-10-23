@@ -559,9 +559,9 @@ export default function Research({
                 />
               )}
               <p className="research-caption">
-                These findings describe the research assessment. Exact holdings
-                still come from the constrained portfolio optimiser. Past
-                performance, not a forecast.
+                {result.report.simulated
+                  ? "Demo allocations use the illustrated cap and simulated share price. Purchases update the paper account and pie."
+                  : "These findings describe the research assessment. Exact holdings still come from the constrained portfolio optimiser. Past performance, not a forecast."}
               </p>
             </section>
           )}

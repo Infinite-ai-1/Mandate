@@ -20,6 +20,6 @@ def research_summary(report, explicit_votes=None):
     return dict(votes=votes, invest_votes=yes, consensus=consensus, recommendation=recommendation,
         ethics_blocked=blocked,
         ethics_score=(100 * sum(v["verdict"] == "PASS" and v["verified"] is True for v in verdicts) / len(verdicts)) if verdicts else None,
-        ethics_definition="Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical.",
+        ethics_definition=("Simulated coverage of scripted rule assumptions, not verification of real company evidence." if report.get("simulated") else "Percentage of rule checks that passed with verified evidence. This is evidence coverage, not a probability that a company is ethical."),
         rationale=dict(ethics=" ".join(v["reason"] for v in verdicts), financial=report["balthasar"]["summary"], risk=report["casper"]["summary"]),
         chair_reason=decision["reason"])
