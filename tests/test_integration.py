@@ -19,6 +19,42 @@ CID = "british_thoracic_society"
 
 
 class IntegrationTests(unittest.TestCase):
+    def test_full_reset_clears_all_charities_and_invalidates_old_workers(self):
+        from mandate.web import CHARITIES
+        import threading
+        for cid in CHARITIES:
+            s = self.ws.state(cid)
+            s.update(policy="Custom test policy", run={"test": True}, cash=123,
+                     positions={"DEMO-XYL": {}}, receipts={"old": {}}, demo_assessments={"DEMO-XYL": 0})
+            self.ws.save(cid, s)
+        started, release = threading.Event(), threading.Event()
+        def old_work(progress):
+            old = self.ws.state(CID)
+            started.set()
+            release.wait(5)
+            self.ws.save(CID, old)
+        jid = self.ws.submit(CID, old_work)['job_id']
+        self.assertTrue(started.wait(2))
+        try:
+            response = self.client.post('/api/reset', json={})
+            self.assertEqual(response.json, {'reset': True})
+        finally:
+            release.set()
+        self.ws.executor.submit(lambda: None).result(timeout=5)
+        self.assertEqual(self.client.get('/api/jobs/'+jid).status_code, 404)
+        for cid in CHARITIES:
+            s = self.ws.state(cid)
+            self.assertIsNone(s['policy'])
+            self.assertIsNone(s['run'])
+            self.assertEqual(s['cash'], C.BUDGET_USD)
+            self.assertEqual(s['positions'], {})
+            self.assertEqual(s['receipts'], {})
+            self.assertNotIn('demo_assessments', s)
+            self.assertEqual(s['revision'], 1)
+            self.assertNotEqual(self.ws.policy(cid)['text'], 'Custom test policy')
+        self.assertFalse(self.ws.busy)
+        self.assertEqual(self.client.post('/api/reset', json={}, headers={'Origin':'https://untrusted.invalid'}).status_code, 403)
+
     def test_demo_jobs_use_standard_routes_and_allocation_rules(self):
         from mandate.demos import SCENARIOS
         for ticker, scenario in SCENARIOS.items():

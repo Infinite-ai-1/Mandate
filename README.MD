@@ -150,3 +150,12 @@ New policies, uncached charities and new evidence require another online run.
 Historical dates are retained; stale real market quotes still block allocations.
 The verifier tests a clean source copy with credentials removed and socket access
 blocked, including portfolio replay, reports, accounts, React and file checksums.
+
+## Full reset
+
+The small Full reset button in the top bar asks for confirmation, then resets every
+charity to its supplied policy and a fresh paper cash pot. It removes saved policy
+edits, assessments, demo approvals, holdings, receipts and jobs, clears this browser's
+Mandate storage, and reloads Home. Background assessments started before the reset
+cannot restore their old state. Source data, credentials and caches remain available
+for subsequent research. Other open tabs should reload after a reset.

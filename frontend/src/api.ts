@@ -289,6 +289,7 @@ export function validatePayload(
   data: unknown,
   post = false,
 ): boolean {
+  if (path === "/api/reset") return obj(data) && data.reset === true;
   if (post && path.endsWith("/investments"))
     return (
       obj(data) &&
@@ -563,6 +564,15 @@ export class ApiError extends Error {
   }
 }
 export const api = {
+  reset: async () => {
+    await request<{ reset: boolean }>("/api/reset", {});
+    memory.clear();
+    for (const storage of [localStorage, sessionStorage]) {
+      for (const key of Object.keys(storage)) {
+        if (key.startsWith("mandate:")) storage.removeItem(key);
+      }
+    }
+  },
   buy: (
     id: string,
     body: {

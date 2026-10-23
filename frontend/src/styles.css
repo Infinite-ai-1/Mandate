@@ -1905,3 +1905,5 @@ html[data-demo="synthetic"] .fixture-policy-note {
 }
 
 .paper-banner { padding: 10px 24px; background: #f0ece1; color: #343b35; font-size: 12px; border-bottom: 1px solid #d8d8cb; }
+
+.topbar .full-reset { font-size: .75rem; padding: .35rem .55rem; min-height: auto; color: #8b3b31; background: transparent; border: 1px solid #d8bcb5; white-space: nowrap; }

@@ -58,6 +58,8 @@ class Workspace:
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mandate")
         self.jobs = {}
         self.busy = set()
+        self.generation = 0
+        self.worker_context = threading.local()
 
     def check(self, cid):
         if cid not in CHARITIES:
@@ -71,7 +73,23 @@ class Workspace:
         })
 
     def save(self, cid, state):
-        write_json(self.root / f"{cid}.json", state)
+        with self.lock:
+            if getattr(self.worker_context, "generation", self.generation) != self.generation:
+                raise ServiceError("This assessment was cancelled by a full reset.", 409)
+            write_json(self.root / f"{cid}.json", state)
+
+    def reset(self):
+        with self.lock:
+            self.generation += 1
+            for cid in CHARITIES:
+                revision = self.state(cid)["revision"] + 1
+                self.save(cid, dict(revision=revision, policy=None, run=None,
+                                    cash=C.BUDGET_USD, positions={}, receipts={}))
+            for job in self.jobs.values():
+                job.update(status="error", result=None, error="Cancelled by full reset.")
+            self.jobs.clear()
+            self.busy.clear()
+            return {"reset": True}
 
     def policy(self, cid):
         state = self.state(cid)
@@ -321,8 +339,12 @@ class Workspace:
             job = dict(status="queued", progress=[], result=None, error=None)
             self.jobs[jid] = job
             self.busy.add(cid)
+            generation = self.generation
         def work():
             with self.lock:
+                if generation != self.generation:
+                    return
+                self.worker_context.generation = generation
                 job["status"] = "running"
             def progress(message):
                 with self.lock:
@@ -338,7 +360,9 @@ class Workspace:
                     job.update(status="error", error=message)
             finally:
                 with self.lock:
-                    self.busy.discard(cid)
+                    if generation == self.generation:
+                        self.busy.discard(cid)
+                    self.worker_context.__dict__.pop("generation", None)
         self.executor.submit(work)
         return dict(job_id=jid)
 
@@ -443,6 +467,10 @@ def create_app(state_dir=None, serve_frontend=True):
     def health():
         return jsonify(status="ok", stack="React + Flask", demo_mode=C.DEMO_MODE,
                        missing_configuration=ws.requirements(), paper_trading=True)
+
+    @app.post("/api/reset")
+    def reset():
+        return jsonify(ws.reset())
 
     @app.get("/api/charities")
     def charities():

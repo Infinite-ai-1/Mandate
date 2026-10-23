@@ -1103,6 +1103,20 @@ export default function App() {
         <header className="topbar">
           <span>Mandate / Research & investment</span>
           <div className="row">
+            <button className="full-reset" title="Reset all charities, policies, assessments and paper portfolios"
+              onClick={async (event) => {
+                if (!window.confirm("Full reset for ALL charities? This clears saved policy edits, assessments, jobs and paper holdings, restores the original policies and $100,000 cash pots, and reloads the website.")) return;
+                const button = event.currentTarget;
+                button.disabled = true;
+                try {
+                  await api.reset();
+                  jobController.current?.abort();
+                  window.location.replace(window.location.pathname);
+                } catch (error) {
+                  button.disabled = false;
+                  window.alert(error instanceof Error ? error.message : "Reset failed. Please retry.");
+                }
+              }}>↺ Full reset</button>
             <button
               className="primary"
               disabled={!id}

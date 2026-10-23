@@ -86,3 +86,20 @@ it("blocks unsafe evidence links", () => {
   expect(safeLink("javascript:alert(1)")).toBeUndefined();
   expect(safeLink("https://www.sec.gov/")).toBe("https://www.sec.gov/");
 });
+
+it("full reset clears Mandate browser caches only after a successful server reset", async () => {
+  localStorage.setItem('mandate:selected', 'test');
+  sessionStorage.setItem('mandate:job', 'old');
+  localStorage.setItem('unrelated', 'keep');
+  const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({reset:true}), {status:200}));
+  vi.stubGlobal('fetch', fetch);
+  await api.reset();
+  expect(fetch.mock.calls[0][0]).toBe('/api/reset');
+  expect(localStorage.getItem('mandate:selected')).toBeNull();
+  expect(sessionStorage.getItem('mandate:job')).toBeNull();
+  expect(localStorage.getItem('unrelated')).toBe('keep');
+  localStorage.setItem('mandate:selected','retained');
+  fetch.mockResolvedValue(new Response(JSON.stringify({error:'failed'}), {status:500}));
+  await expect(api.reset()).rejects.toThrow('failed');
+  expect(localStorage.getItem('mandate:selected')).toBe('retained');
+});
