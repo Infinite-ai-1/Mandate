@@ -6,3 +6,6 @@ data/cache/ keyed by (source, params); DEMO_MODE=1 means cache-only, zero networ
 Everything fails soft: a fetcher that errors logs and returns what it has, it never
 raises out of a run_all() pass.
 """
+from dotenv import load_dotenv
+
+load_dotenv()  # so every ingest.* submodule sees .env without importing it itself
