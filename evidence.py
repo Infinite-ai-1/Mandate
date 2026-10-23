@@ -32,13 +32,20 @@ EMBED_CACHE_DIR = os.path.join(CACHE_DIR, "embeddings")
 MIN_WORDS = 150
 MAX_WORDS = 300
 NEAR_DUP_THRESHOLD = 92  # rapidfuzz token_sort_ratio, 0-100; same-story-different-outlet news scores above this
-_FALLBACK_DIMS = 256
+_FALLBACK_DIMS = 1024
 
 _STOPWORDS = {
     "the", "a", "an", "and", "or", "of", "to", "in", "for", "on", "with", "any", "no",
     "not", "is", "are", "was", "were", "be", "been", "by", "that", "this", "it", "its",
     "we", "our", "from", "as", "at", "all", "than", "more", "may", "must", "shall",
     "should", "will", "do", "does", "have", "has", "had", "which", "who", "but", "if",
+    # generic filing/news boilerplate that swamps a hashed bag-of-words with no
+    # real semantics -- the real embed() won't need this, but the fallback does.
+    "company", "companies", "million", "billion", "year", "years", "fiscal", "item",
+    "form", "report", "reported", "including", "related", "other", "such", "also",
+    "each", "under", "within", "certain", "approximately", "total", "including",
+    "section", "filing", "filed", "business", "results", "operations", "financial",
+    "statement", "statements", "management", "net", "could", "would", "based",
 }
 
 
@@ -196,12 +203,17 @@ def _fallback_embed(text):
     rich, but stable, dependency-free, and good enough for rank_evidence() to work
     end-to-end before llm.embed() exists.
     """
-    words = [w for w in re.findall(r"[a-z0-9]+", text.lower()) if w not in _STOPWORDS]
+    words = [w for w in re.findall(r"[a-z0-9]+", text.lower()) if w not in _STOPWORDS and len(w) > 2]
     vec = [0.0] * _FALLBACK_DIMS
     tokens = words + [f"{a}_{b}" for a, b in zip(words, words[1:])]
+    counts = {}
     for tok in tokens:
+        counts[tok] = counts.get(tok, 0) + 1
+    for tok, n in counts.items():
         h = int(hashlib.md5(tok.encode()).hexdigest(), 16)
-        vec[h % _FALLBACK_DIMS] += 1.0
+        # log-dampened term frequency: a word repeated 20 times in a long filing
+        # section shouldn't dominate 20x harder than one mentioned twice.
+        vec[h % _FALLBACK_DIMS] += 1.0 + math.log(n)
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]
 
