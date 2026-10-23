@@ -1,6 +1,8 @@
 """Chunking, embeddings, retrieval and source IDs for the evidence the agents may quote."""
 import hashlib
 import json
+import os
+import threading
 from datetime import datetime, timezone
 from functools import lru_cache
 
@@ -83,15 +85,21 @@ def get_chunk(source_id: str) -> Chunk | None:
     return next((c for c in chunks if c.source_id == source_id), None)
 
 
+_qlock = threading.Lock()   # retrieval runs in worker threads: one writer at a time for the query cache
+
+
 def _query_vec(query: str) -> np.ndarray:
     """Embed a rule query once; later calls (and DEMO_MODE) read cache/emb/_queries.json."""
     path = EMB_DIR / "_queries.json"
-    cache = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     key = hashlib.sha256(query.encode()).hexdigest()
-    if key not in cache:
-        cache[key] = embed([query])[0]
-        EMB_DIR.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(cache), encoding="utf-8")
+    with _qlock:
+        cache = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        if key not in cache:
+            cache[key] = embed([query])[0]
+            EMB_DIR.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(cache), encoding="utf-8")
+            os.replace(tmp, path)       # readers never see a half-written file
     return np.array(cache[key], dtype=np.float32)
 
 

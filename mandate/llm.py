@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import os
 import re
 import threading
 import time
@@ -198,7 +199,10 @@ def _cache_get(key: str) -> Optional[str]:
 
 def _cache_put(key: str, model: str, text: str) -> None:
     C.LLM_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    (C.LLM_CACHE_DIR / f"{key}.json").write_text(json.dumps({"model": model, "text": text}), encoding="utf-8")
+    final = C.LLM_CACHE_DIR / f"{key}.json"
+    tmp = final.with_name(f"{key}.{threading.get_ident()}.tmp")     # write then rename: readers never see half a file
+    tmp.write_text(json.dumps({"model": model, "text": text}), encoding="utf-8")
+    os.replace(tmp, final)
 
 
 def _log(agent, ticker, model, prompt_tokens, completion_tokens, seconds, cache_hit, **extra) -> None:

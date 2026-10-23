@@ -57,7 +57,7 @@ def resolve(out: CompilerOutput, policy_text: str) -> ResolvedPolicy:
                           limits=merge_limits(out.stated_limits), weights=merge_weights(out.stated_weights))
 
 
-def compile_policy(policy_text: str, agent: str = "chair") -> ResolvedPolicy:
+def compile_policy(policy_text: str, agent: str = "chair", allow_live: bool = False) -> ResolvedPolicy:
     user = policy_text.strip() or "(no policy provided)"
-    out = chat_json(agent, SYSTEM, user, CompilerOutput, max_tokens=4000)
+    out = chat_json(agent, SYSTEM, user, CompilerOutput, max_tokens=4000, allow_live=allow_live)
     return resolve(out, policy_text)
