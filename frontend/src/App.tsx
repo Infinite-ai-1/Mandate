@@ -1343,7 +1343,7 @@ export default function App() {
                         <strong>
                           {number.format(selection.data.after_prefilter)}
                         </strong>{" "}
-                        after pre-filter
+                        in scope
                       </span>
                       <span aria-hidden>→</span>
                       <span>
@@ -1638,7 +1638,7 @@ export default function App() {
               )}
               {tab === "stats" && p && (
                 <>
-                  <h2>Portfolio stats</h2>
+              <h2>Suggested portfolio stats</h2>
                   <Status resource={account} />
                   <StatsDetails p={portfolio.data ?? p} r={r} rules={rules} />
                 </>

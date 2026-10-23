@@ -412,7 +412,7 @@ export function validatePayload(
 export function cached<T>(path: string): T | undefined {
   if (memory.has(path)) return memory.get(path) as T;
   try {
-    const item = localStorage.getItem(`mandate:v2:${path}`);
+    const item = localStorage.getItem(`mandate:v3:${path}`);
     const data = item ? JSON.parse(item) : undefined;
     return validatePayload(path, data) ? (data as T) : undefined;
   } catch {
@@ -424,8 +424,8 @@ export function remember<T>(path: string, data: T) {
   memory.delete("presentation:" + path);
   memory.delete("research:" + path);
   try {
-    localStorage.setItem(`mandate:v2:${path}`, JSON.stringify(data));
-    localStorage.removeItem(`mandate:v2:presentation:${path}`);
+    localStorage.setItem(`mandate:v3:${path}`, JSON.stringify(data));
+    localStorage.removeItem(`mandate:v3:presentation:${path}`);
   } catch {
     /* memory cache still works */
   }
@@ -437,7 +437,7 @@ export function presentation(path: string): Presentation | undefined {
   if (memory.has("presentation:" + path))
     return memory.get("presentation:" + path) as Presentation;
   try {
-    const value = localStorage.getItem(`mandate:v2:presentation:${path}`);
+    const value = localStorage.getItem(`mandate:v3:presentation:${path}`);
     if (value) return JSON.parse(value);
   } catch {
     /* optional */
@@ -464,6 +464,9 @@ export async function request<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
+    if (response.headers.get("X-Mandate-Data") === "synthetic") {
+      throw new Error("Legacy preview server detected. Start the real Flask app with python api.py.");
+    }
 
     let data: unknown;
     try {
@@ -530,7 +533,7 @@ export async function request<T>(
           memory.set("presentation:" + path, summary);
           try {
             localStorage.setItem(
-              `mandate:v2:presentation:${path}`,
+              `mandate:v3:presentation:${path}`,
               JSON.stringify(summary),
             );
           } catch {

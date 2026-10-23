@@ -96,6 +96,8 @@ class Workspace:
                     "MODEL_MELCHIOR / DEPLOY_SOL": C.MODELS["melchior"],
                     "MODEL_BALTHASAR / DEPLOY_MAI": C.MODELS["balthasar"],
                     "MODEL_CASPER / DEPLOY_TERRA_6": C.MODELS["casper"]}
+        if C.provider_for(C.MODELS["casper"]) == "anthropic":
+            required["ANTHROPIC_API_KEY"] = C.ANTHROPIC_API_KEY
         return [key for key, value in required.items() if not value]
 
     def decision(self, d):
@@ -161,11 +163,12 @@ class Workspace:
 
     def selection(self, cid):
         from .universe import EQUITIES
+        tickers = EQUITIES
         try:
-            tickers = [d["ticker"] for d in self.run(cid)["decisions"]]
+            analysed = sum(d["ticker"] in EQUITIES for d in self.run(cid)["decisions"])
         except ServiceError:
-            tickers = EQUITIES
-        return dict(charity_id=cid, universe_size=len(tickers), after_prefilter=len(tickers), excluded_by_sic=[],
+            analysed = 0
+        return dict(charity_id=cid, universe_size=len(tickers), after_prefilter=len(tickers), analysed_count=analysed, excluded_by_sic=[],
                     selected=[dict(ticker=t, why="Configured research universe; assessment required") for t in tickers])
 
     def empty_portfolio(self, cid):

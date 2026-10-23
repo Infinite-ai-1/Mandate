@@ -12,6 +12,7 @@ from functools import lru_cache
 from typing import Optional, Type, TypeVar
 
 import openai
+import anthropic
 from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from pydantic import BaseModel
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
@@ -80,7 +81,9 @@ def _bad_param(e: BaseException, model: str) -> bool:
         return False
     msg = str(e).lower()
     for p, hints in (("temperature", ("temperature",)), ("response_format", ("response_format", "json_object"))):
-        if p not in _dropped[model] and any(h in msg for h in hints):
+        # Concurrent requests may already have sent the same unsupported option.
+        # Every such request must retry, even if another worker learned it first.
+        if any(h in msg for h in hints):
             _dropped[model].add(p)
             return True
     return False
@@ -130,6 +133,12 @@ def _models_to_try(model: str) -> list[str]:
 
 def _complete(agent: str, system: str, user: str, max_tokens: int, ticker: Optional[str]) -> str:
     model, t0 = _check_model(agent), time.time()
+    if C.provider_for(model) == "anthropic":
+        with anthropic.Anthropic(api_key=C.ANTHROPIC_API_KEY, timeout=120, max_retries=2) as client:
+            response = client.messages.create(model=model, system=system, max_tokens=max_tokens,
+                                              messages=[{"role": "user", "content": user}])
+        _log(agent, ticker, model, response.usage.input_tokens, response.usage.output_tokens, time.time()-t0, False)
+        return "".join(block.text for block in response.content if block.type == "text")
     for m in _models_to_try(model):         # backup only after the primary has failed 4 times
         try:
             for _ in range(3):              # extra loops only to drop rejected params
@@ -150,6 +159,12 @@ def _complete(agent: str, system: str, user: str, max_tokens: int, ticker: Optio
 async def _acomplete(agent: str, system: str, user: str, max_tokens: int, ticker: Optional[str]) -> str:
     model, t0 = _check_model(agent), time.time()
     async with _sem():
+        if C.provider_for(model) == "anthropic":
+            async with anthropic.AsyncAnthropic(api_key=C.ANTHROPIC_API_KEY, timeout=120, max_retries=2) as client:
+                response = await client.messages.create(model=model, system=system, max_tokens=max_tokens,
+                                                       messages=[{"role": "user", "content": user}])
+            _log(agent, ticker, model, response.usage.input_tokens, response.usage.output_tokens, time.time()-t0, False)
+            return "".join(block.text for block in response.content if block.type == "text")
         for m in _models_to_try(model):
             try:
                 for _ in range(3):
@@ -189,7 +204,7 @@ def _repair_prompt(user: str, err: ValueError) -> str:
 
 # ---------- disk cache and log ----------
 def _key(model: str, system: str, user: str) -> str:
-    return hashlib.sha256(json.dumps([model, system, user]).encode()).hexdigest()
+    return hashlib.sha256(json.dumps([C.provider_for(model), model, system, user]).encode()).hexdigest()
 
 
 def _cache_get(key: str) -> Optional[str]:

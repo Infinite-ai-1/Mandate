@@ -1,0 +1,190 @@
+"""Offline integration tests. Doubles exist only in tests, never served to users."""
+import hashlib
+import json
+import tempfile
+import time
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from mandate import config as C, evidence
+from mandate.agents.compiler import merge_limits, resolve
+from mandate.decide import classify_ethics, decide_chair, decide_ethics
+from mandate.schemas import (ChairResult, CompilerOutput, FinResult, MelchiorOutput,
+                             MelchiorResult, RiskResult, StatedLimits, Verdict)
+from mandate.verify import verify_verdicts
+from mandate.web import Workspace, create_app
+
+CID = "british_thoracic_society"
+
+
+class IntegrationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.app = create_app(self.tmp.name)
+        self.client = self.app.test_client()
+        self.ws = self.app.config["MANDATE_WORKSPACE"]
+
+    def tearDown(self):
+        self.ws.executor.shutdown(wait=True)
+        self.tmp.cleanup()
+
+    def wait_job(self, jid):
+        for _ in range(200):
+            job = self.client.get(f"/api/jobs/{jid}").get_json()
+            if job["status"] in ("done", "error"):
+                return job
+            time.sleep(.01)
+        self.fail("Background job did not finish")
+
+    def test_startup_with_real_policies_and_empty_paper_account(self):
+        self.assertEqual(self.client.get("/api/health").status_code, 200)
+        charities = self.client.get("/api/charities").get_json()
+        self.assertEqual(len(charities), 4)
+        for charity in charities:
+            cid = charity["charity_id"]
+            account = self.client.get(f"/api/charities/{cid}/account").get_json()
+            self.assertTrue(account["simulated"])
+            self.assertEqual(account["portfolio"]["holdings"], [])
+            self.assertEqual(account["portfolio"]["cash_usd"], C.BUDGET_USD)
+            self.assertIsNone(account["portfolio"]["gbpusd"])
+            self.assertTrue(all(v is None for v in account["portfolio"]["risk"].values()))
+            self.assertNotIn("total_gbp", account["presentation"])
+            policy = self.client.get(f"/api/charities/{cid}/policy").get_json()
+            self.assertGreater(len(policy["text"]), 100)
+            self.assertEqual(self.client.get(f"/api/charities/{cid}/portfolio").status_code, 409)
+
+    def test_unknown_routes_and_input_errors_are_json(self):
+        for path in ("/api/not-a-route", "/api/jobs/unknown", "/api/charities/unknown/account", "/api/sources/unknown"):
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 404, path)
+            self.assertIn("error", response.get_json())
+        self.assertEqual(self.client.post(f"/api/charities/{CID}/run", json=[]).status_code, 400)
+        self.assertEqual(self.client.post(f"/api/charities/{CID}/run", json={}, headers={"Origin": "https://untrusted.invalid"}).status_code, 403)
+
+    def test_policy_save_without_keys_is_persistent_and_finishes(self):
+        with patch.object(self.ws, "requirements", return_value=["MODEL_BALTHASAR"]), patch.object(C, "DEMO_MODE", False):
+            response = self.client.post(f"/api/charities/{CID}/policy", json={"text": "Trustee policy entered for this test", "policy_revision": 0})
+            self.assertEqual(response.status_code, 202)
+            job = self.wait_job(response.get_json()["job_id"])
+            self.assertEqual(job["status"], "done")
+            self.assertIsNone(job["result"])
+            self.assertIn("Configure API", job["progress"][-1])
+        saved = self.ws.state(CID)
+        self.assertEqual(saved["revision"], 1)
+        self.assertIsNone(saved["run"])
+        other = Workspace(self.tmp.name)
+        try:
+            self.assertEqual(other.policy(CID)["text"], saved["policy"])
+        finally:
+            other.executor.shutdown()
+        stale = self.client.post(f"/api/charities/{CID}/policy", json={"text": "Overwrite", "policy_revision": 0})
+        self.assertEqual(stale.status_code, 409)
+
+    def test_unconfigured_research_finishes_as_actionable_error(self):
+        with patch.object(self.ws, "requirements", return_value=["MODEL_BALTHASAR"]), patch.object(C, "DEMO_MODE", False):
+            response = self.client.post(f"/api/charities/{CID}/run", json={})
+            job = self.wait_job(response.get_json()["job_id"])
+        self.assertEqual(job["status"], "error")
+        self.assertIn("MODEL_BALTHASAR", job["error"])
+        self.assertNotIn(CID, self.ws.busy)
+
+    def test_real_ingestion_evidence_resolves_through_flask(self):
+        chunks, _ = evidence._load("PM")
+        self.assertGreater(len(chunks), 0)
+        chunk = next(c for c in chunks if c.source_id.startswith("S-PM-") and c.url)
+        self.assertEqual(evidence.get_chunk(chunk.source_id).text, chunk.text)
+        response = self.client.get(f"/api/sources/{chunk.source_id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["ticker"], "PM")
+
+    def test_paper_buy_idempotency_revision_and_cash_accounting(self):
+        # Controlled quote verifies ledger arithmetic, not a market recommendation.
+        quote = dict(buy_allowed=True, blocked_reason=None, maximum_usd=10000, price=123.45)
+        report = dict(decision=dict(cap=.1, reason="Test-only verified decision", source_ids=[], decision="APPROVE"))
+        body = dict(ticker="XYL", amount_usd=1000, request_id="test-id", policy_revision=0)
+        with patch.object(self.ws, "quote", return_value=quote), patch.object(self.ws, "company", return_value=report):
+            first = self.client.post(f"/api/charities/{CID}/investments", json=body)
+            second = self.client.post(f"/api/charities/{CID}/investments", json=body)
+            self.assertEqual(first.status_code, 200)
+            self.assertEqual(first.get_json(), second.get_json())
+            self.assertEqual(first.get_json()["receipt"]["shares"], 8)
+            account = first.get_json()["account"]
+            self.assertAlmostEqual(account["portfolio"]["cash_usd"]+account["invested_usd"], C.BUDGET_USD)
+            conflict = self.client.post(f"/api/charities/{CID}/investments", json={**body, "amount_usd": 2000})
+            self.assertEqual(conflict.status_code, 409)
+            stale = self.client.post(f"/api/charities/{CID}/investments", json={**body, "request_id": "new", "policy_revision": 1})
+            self.assertEqual(stale.status_code, 409)
+            overspend = self.client.post(f"/api/charities/{CID}/investments", json={**body, "request_id": "new", "amount_usd": 11000})
+            self.assertEqual(overspend.status_code, 409)
+
+    def test_unassessed_stock_cannot_be_bought(self):
+        quote = self.client.get(f"/api/charities/{CID}/companies/XYL/investment-quote").get_json()
+        self.assertFalse(quote["buy_allowed"])
+        response = self.client.post(f"/api/charities/{CID}/investments", json=dict(ticker="XYL", amount_usd=1000, request_id="a", policy_revision=0))
+        self.assertEqual(response.status_code, 409)
+
+    def test_policy_fingerprint_invalidates_external_file_changes(self):
+        state = self.ws.state(CID)
+        state["run"] = {"policy_hash": "outdated"}
+        self.ws.save(CID, state)
+        self.assertEqual(self.client.get(f"/api/charities/{CID}/portfolio").status_code, 409)
+
+    def test_flask_serves_built_react_assets(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'id="root"', response.data)
+        response.close()
+        with self.client.get("/research") as response:
+            self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.get("/assets/missing.js").status_code, 404)
+
+
+class VerificationTests(unittest.TestCase):
+    def test_parallel_unsupported_parameter_responses_each_retry(self):
+        import httpx
+        import openai
+        from mandate.llm import _bad_param, _dropped
+        response = httpx.Response(400, request=httpx.Request("POST", "https://example.invalid"))
+        error = openai.BadRequestError("Unsupported value: temperature", response=response, body={})
+        _dropped.pop("test-model", None)
+        self.assertTrue(_bad_param(error, "test-model"))
+        self.assertTrue(_bad_param(error, "test-model"))
+
+    def test_no_checks_or_uncited_pass_requires_review(self):
+        self.assertEqual(classify_ethics([]), "TRUSTEE_REVIEW")
+        self.assertEqual(classify_ethics([Verdict(rule_id="R1", verdict="PASS", verified=False)]), "TRUSTEE_REVIEW")
+        result = verify_verdicts("PM", ["R1"], MelchiorOutput(ticker="PM", verdicts=[Verdict(rule_id="R1", verdict="PASS")]))
+        self.assertEqual(result.verdicts[0].verdict, "FLAG")
+        self.assertEqual(decide_ethics("PM", result).status, "TRUSTEE_REVIEW")
+
+    def test_real_quote_is_verified_and_veto_cannot_be_overridden(self):
+        chunk = evidence._load("PM")[0][0]
+        verdict = Verdict(rule_id="R1", verdict="FAIL", quote=chunk.text[:200], source_id=chunk.source_id)
+        mel = verify_verdicts("PM", ["R1"], MelchiorOutput(ticker="PM", verdicts=[verdict]))
+        self.assertTrue(mel.verdicts[0].verified)
+        decision = decide_chair("PM", mel, FinResult(ticker="PM", score=10), RiskResult(ticker="PM", score=10), ChairResult(ticker="PM", decision="full"))
+        self.assertEqual(decision.status, "REJECTED_ETHICS")
+        self.assertEqual(decision.cap, 0)
+
+    def test_chair_failure_never_approves(self):
+        mel = MelchiorResult(ticker="XYL", verdicts=[Verdict(rule_id="R1", verdict="PASS", verified=True)])
+        result = decide_chair("XYL", mel, FinResult(ticker="XYL", score=10), RiskResult(ticker="XYL", score=10),
+                              ChairResult(ticker="XYL", decision="reduced", defaulted=True))
+        self.assertEqual(result.status, "TRUSTEE_REVIEW")
+
+    def test_proposed_restrictions_are_not_automatically_approved(self):
+        out = CompilerOutput(charity="Test", proposed_mission_conflicts=[dict(id="M1", text="Proposal", reasoning="Test")])
+        policy = resolve(out, "")
+        self.assertEqual(policy.rules, [])
+        self.assertFalse(policy.proposed_mission_conflicts[0].approved)
+
+    def test_demo_mode_blocks_even_allow_live_escape(self):
+        from mandate.llm import _lookup, DemoModeCacheMiss
+        with patch.object(C, "DEMO_MODE", True), patch("mandate.llm._cache_get", return_value=None), patch("mandate.llm._check_model", return_value="test"):
+            with self.assertRaises(DemoModeCacheMiss):
+                _lookup("chair", "test", "test", CompilerOutput, None, True)
+
+
+if __name__ == "__main__":
+    unittest.main()

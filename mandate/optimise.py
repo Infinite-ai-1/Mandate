@@ -1,7 +1,7 @@
 """Min-volatility optimiser with exact dollars and share counts, a relaxation chain and a code-only backtest."""
 import numpy as np
 import pandas as pd
-from pypfopt import DiscreteAllocation, EfficientFrontier, risk_models
+from pypfopt import EfficientFrontier, risk_models
 from pypfopt.discrete_allocation import get_latest_prices
 
 from . import config as C
@@ -9,7 +9,6 @@ from .schemas import Backtest, Holding, Limits, OptimiserResult
 
 BOND_CAP_RELAXED = 0.35
 BOND_BUFFER = 0.005         # solve slightly above min_bonds so share rounding cannot push the real mix below it
-CAP_TOL = 0.005             # whole shares can overshoot a cap by a little; anything above this fails the check
 
 
 def _solve(S: pd.DataFrame, caps: dict[str, float], bonds: set[str], yields: dict,
@@ -31,10 +30,10 @@ def backtest(weights: dict[str, float], prices: pd.DataFrame, yields: dict, limi
     px = prices[cols].dropna()
     rets = px.pct_change().dropna()
     w = pd.Series(weights)
-    w = w / w.sum()
+    # Realised whole-share weights include cash at zero return; never rescale away cash.
     port = (rets[w.index] * w).sum(axis=1)
     bench = rets["SPY"] * 0.6 + rets["BND"] * 0.4
-    value = (1 + port).cumprod()
+    value = pd.concat([pd.Series([1.0], index=[px.index[0]]), (1 + port).cumprod()])
     roll = value.pct_change(252).dropna()
     total, total_b = float(value.iloc[-1] - 1), float((1 + bench).prod() - 1)
     y = float(sum(wt * yields.get(t, 0.0) for t, wt in w.items()))
@@ -66,7 +65,7 @@ def optimise(caps: dict[str, float], bonds: list[str], prices: pd.DataFrame, yie
     min_bonds = limits.min_bonds.value
 
     def fail(msg: str, relaxed: list[str]) -> OptimiserResult:
-        return OptimiserResult(ok=False, error=msg, relaxed=notes + relaxed)
+        return OptimiserResult(ok=False, error=msg, relaxed=notes + relaxed, cash_usd=budget)
 
     # attempts in order: (bond cap, enforce income, what was relaxed)
     attempts = [(C.BOND_MAX_WEIGHT, True, []),
@@ -88,7 +87,10 @@ def optimise(caps: dict[str, float], bonds: list[str], prices: pd.DataFrame, yie
         except Exception as e:      # cvxpy / PyPortfolioOpt raise several types for an infeasible problem
             last_error = f"{type(e).__name__}: {str(e)[:120]}"
             continue
-        return _finish(weights, cap, set(bonds), px, prices, yields, limits, budget, notes + relaxed, bond_cap)
+        result = _finish(weights, cap, set(bonds), px, prices, yields, limits, budget, notes + relaxed, bond_cap)
+        if result.ok:
+            return result
+        last_error = result.error or "Whole-share allocation infeasible"
     if last_error.startswith("Not enough approved holdings"):
         return fail(last_error + " Approve more holdings; the caps were not relaxed.", attempts[-1][2])
     return fail(f"No feasible portfolio even after relaxing the income target and raising the bond cap to "
@@ -98,19 +100,34 @@ def optimise(caps: dict[str, float], bonds: list[str], prices: pd.DataFrame, yie
 
 def _finish(weights, cap, bonds, px, prices, yields, limits, budget, relaxed, bond_cap) -> OptimiserResult:
     latest = get_latest_prices(px)
-    alloc, leftover = DiscreteAllocation(weights, latest[list(weights)], total_portfolio_value=budget).greedy_portfolio()
+    # Reuse the quant branch's integer repair so rounding cannot breach an approved cap.
+    from quant.optimiser import _whole_shares
+    symbols = list(latest.index)
+    income = limits.min_yield.value if not any("income target" in text for text in relaxed) else 0
+    if budget != C.BUDGET_USD:
+        raise ValueError("Integer allocation currently supports the configured paper budget only")
+    quantities = _whole_shares(np.array([weights.get(t, 0) for t in symbols]), latest,
+                              np.array([cap[t] for t in symbols]), np.array([t in bonds for t in symbols], dtype=float),
+                              np.array([yields.get(t, 0) for t in symbols]), limits.min_bonds.value, income)
+    if quantities is None:
+        return OptimiserResult(ok=False, error="No whole-share allocation satisfies cash, position and bond limits.", cash_usd=budget)
+    alloc = {t: int(n) for t, n in zip(symbols, quantities) if n > 0}
     holdings = []
     for t, n in sorted(alloc.items(), key=lambda kv: -kv[1] * latest[kv[0]]):
         dollars = float(n * latest[t])
-        holdings.append(Holding(ticker=t, is_bond=t in bonds, cap=cap[t], target_weight=weights[t], shares=int(n),
+        holdings.append(Holding(ticker=t, is_bond=t in bonds, cap=cap[t], target_weight=weights.get(t, 0), shares=int(n),
                                 price=float(latest[t]), dollars=round(dollars, 2), weight=dollars / budget))
     invested = sum(h.dollars for h in holdings)
     bond_share = sum(h.weight for h in holdings if h.is_bond)
-    bt = backtest(weights, prices, yields, limits)
+    bt = None
+    try:
+        bt = backtest({h.ticker: h.weight for h in holdings}, prices, yields, limits)
+    except (KeyError, IndexError, ValueError):
+        relaxed = relaxed + ["Historical performance unavailable: missing benchmark or overlapping observations."]
     checks = {"bonds_ok": bond_share >= limits.min_bonds.value,
-              "caps_ok": all(h.weight <= h.cap + CAP_TOL for h in holdings),
+              "caps_ok": all(h.weight <= h.cap + 1e-8 for h in holdings),
               "budget_ok": invested <= budget,
-              "yield_ok": bt.yield_ok}
+              "yield_ok": bt.yield_ok if bt else False}
     return OptimiserResult(ok=True, relaxed=relaxed, bond_cap_used=bond_cap, holdings=holdings,
                            invested_usd=round(invested, 2), cash_usd=round(budget - invested, 2),
                            checks=checks, backtest=bt)

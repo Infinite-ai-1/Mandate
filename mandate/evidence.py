@@ -53,7 +53,7 @@ def build_chunks(ticker: str) -> list[Chunk]:
         for item in json.loads(path.read_text(encoding="utf-8")):
             source = sources.get(item["source_id"]) or {}
             chunks.append(Chunk(**{**item, "kind": source.get("kind", "filing"),
-                                  "url": source.get("url", ""), "section": source.get("section", ""),
+                                  "url": source.get("url") or "", "section": source.get("section") or "",
                                   "date": item.get("date") or source.get("date") or ""}))
     return list({c.source_id: c for c in chunks}.values())
 

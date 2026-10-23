@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 import numpy as np
 
-from quant.contract_fixtures import CHARITIES, Portfolio, fixture_inputs
+from tests.quant_fixtures import CHARITIES, Portfolio, fixture_inputs
 from quant.optimiser import optimise, _whole_shares
 from quant.backtest import replay
 

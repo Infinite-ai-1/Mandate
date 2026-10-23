@@ -64,8 +64,7 @@ def verify_fin(out: BalthasarOutput, data: dict) -> FinResult:
     ok, bad = [], []
     for r in out.reasons:
         # "missing" is only honest if some metric really is missing
-        is_missing = r.metric == "missing" and any(v is None for v in data.values())
-        (ok if is_missing or metric_matches(r.metric, r.value, data) else bad).append(r)
+        (ok if metric_matches(r.metric, r.value, data) else bad).append(r)
     if not ok:
         return FinResult(ticker=out.ticker, score=None, unverified=bad, note="Financial data missing or unverifiable.")
     return FinResult(ticker=out.ticker, score=out.score, reasons=ok, unverified=bad)
@@ -79,7 +78,8 @@ def verify_risk(out: CasperOutput, stats: dict) -> RiskResult:
         if r.metric is not None:
             checks.append(metric_matches(r.metric, r.value, stats))
         if r.source_id is not None:
-            checks.append(get_chunk(r.source_id) is not None)
+            chunk = get_chunk(r.source_id)
+            checks.append(chunk is not None and chunk.ticker == out.ticker)
         (ok if checks and all(checks) else bad).append(r)
     if not ok:
         return RiskResult(ticker=out.ticker, score=None, unverified=bad, note="Risk data missing or unverifiable.")

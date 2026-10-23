@@ -90,22 +90,21 @@ def fetch_fundamentals(tickers: list[str], force: bool = False) -> dict:
 
 def risk_stats(prices: pd.DataFrame, benchmark: str = "SPY") -> dict:
     """annual_vol, max_drawdown, worst_12m_return, beta_vs_spy per ticker, all computed here."""
-    rets = prices.pct_change()
+    from quant.stats import calculate_price_metrics
+    if benchmark != "SPY":
+        raise ValueError("The shared risk calculation uses SPY as its benchmark")
+    rows = prices.rename_axis("date").reset_index().melt(id_vars="date", var_name="ticker", value_name="close").dropna()
     out = {}
     for t in prices.columns:
-        p = prices[t].dropna()
-        if len(p) < 253:
+        try:
+            _, values = calculate_price_metrics(rows, t)
+        except ValueError:
             continue
-        r = p.pct_change().dropna()
-        joined = pd.concat([r, rets[benchmark]], axis=1, join="inner").dropna() if benchmark in prices else None
-        beta = None
-        if joined is not None and joined.iloc[:, 1].var() > 0:
-            beta = float(joined.iloc[:, 0].cov(joined.iloc[:, 1]) / joined.iloc[:, 1].var())
         out[t] = {
-            "annual_vol": float(r.std() * np.sqrt(252)),
-            "max_drawdown": float((p / p.cummax() - 1).min()),
-            "worst_12m_return": float(p.pct_change(252).min()),
-            "beta_vs_spy": beta,
+            "annual_vol": values["annualised_volatility"],
+            "max_drawdown": values["max_drawdown"],
+            "worst_12m_return": values["worst_12m"],
+            "beta_vs_spy": values["beta"],
         }
     return out
 

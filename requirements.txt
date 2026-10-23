@@ -18,3 +18,4 @@ pyarrow
 PyPortfolioOpt
 scikit-learn
 tenacity
+packaging

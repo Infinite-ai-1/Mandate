@@ -16,6 +16,7 @@ def _env(name: str, default: str = "") -> str:
 ENDPOINT = _env("AZURE_OPENAI_ENDPOINT")
 API_KEY = _env("AZURE_OPENAI_API_KEY")
 API_VERSION = _env("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+ANTHROPIC_API_KEY = _env("ANTHROPIC_API_KEY")
 
 DEPLOY_SOL = _env("DEPLOY_SOL")
 DEPLOY_ASTRA = _env("DEPLOY_ASTRA")
@@ -39,7 +40,10 @@ MODELS = {
     "backup": DEPLOY_ASTRA,     # used if a deployment fails 4 times
     "embed": _env("MODEL_EMBED") or DEPLOY_EMBED,
 }
-REASONING_MODELS = {d for d in (DEPLOY_MAI,) if d}   # no temperature, max_completion_tokens
+REASONING_MODELS = {d for d in (DEPLOY_MAI, MODELS["balthasar"]) if d}
+
+def provider_for(model: str) -> str:
+    return "anthropic" if model.startswith("claude-") else "azure"
 
 BUDGET_USD = 100_000
 CAP_BY_DECISION = {"full": 0.10, "reduced": 0.05, "reject": 0.0}

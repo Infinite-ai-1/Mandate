@@ -17,4 +17,5 @@ def portfolio_summary(portfolio):
     return result
 
 def selection_summary(selection):
-    return dict(analysed_count=len(as_dict(selection)["selected"]))
+    data = as_dict(selection)
+    return dict(analysed_count=data.get("analysed_count", len(data["selected"])))

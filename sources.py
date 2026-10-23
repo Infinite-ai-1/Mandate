@@ -47,9 +47,11 @@ def _load():
 
 def _flush():
     os.makedirs(PROCESSED_DIR, exist_ok=True)
-    with open(SOURCES_PATH, "w") as f:
+    temporary = SOURCES_PATH + ".tmp"
+    with open(temporary, "w", encoding="utf-8") as f:
         json.dump(_cache, f, indent=2, sort_keys=True)
         f.write("\n")
+    os.replace(temporary, SOURCES_PATH)
 
 
 def _next_seq(ticker):
@@ -66,7 +68,7 @@ def _next_seq(ticker):
     return seq
 
 
-def register(source):
+def register(source=None, **fields):
     """Mints a source_id for `source` (a dict with every key except source_id:
     ticker, kind, origin, title, date, url, section) and persists it to
     data/processed/sources.json. Returns the new source_id.
@@ -76,6 +78,7 @@ def register(source):
     duplicate -- callers can register the same chunk's source on every run without
     the registry growing.
     """
+    source = {**(source or {}), **fields}
     if source.get("kind") not in KINDS:
         raise ValueError(f"unknown kind {source.get('kind')!r}, expected one of {KINDS}")
     if source.get("origin") not in ORIGINS:
@@ -85,12 +88,16 @@ def register(source):
     with _lock:
         registry = _load()
         dedupe_keys = ("ticker", "kind", "origin", "title", "date", "url", "section")
+        explicit_id = source.get("source_id")
         for sid, existing in registry.items():
             if all(existing.get(k) == source.get(k) for k in dedupe_keys):
-                return sid
+                if not explicit_id or sid == explicit_id:
+                    return sid
 
         seq = _next_seq(ticker)
-        source_id = f"S-{ticker}-{seq:04d}"
+        source_id = explicit_id or f"S-{ticker}-{seq:04d}"
+        if source_id in registry and registry[source_id]["ticker"] != ticker:
+            raise ValueError("Source ID already belongs to another company")
         registry[source_id] = {
             "source_id": source_id,
             "ticker": ticker,

@@ -1,5 +1,19 @@
 # Mandate: shared project contract
 
+## Integration status (23 October 2026)
+The application entry point is `api.py` (Flask/Waitress) serving `frontend/dist`
+(React). The integrated implementation and run instructions are in README.MD.
+There is no Streamlit app or stub server. Paper accounts use real observed market
+data and persist locally; synthetic market/recommendation payloads are removed.
+`mandate/web.py` bridges internal `mandate.schemas` with the frontend API shape;
+`schemas.py` supplies the public quant contracts. Null means unavailable.
+The active pipeline uses 32 configured equities plus four bond ETFs, without
+claiming the planned larger funnel ran. Proposed rules require trustee adoption.
+Cancer Research Wales's supplied document does not state a tobacco exclusion;
+the invented demo clause was removed. Do not silently reintroduce it.
+All areas may be changed when needed for an explicitly requested integration.
+Test doubles must stay inside tests and never become application data.
+
 ## What we're building
 An AI analyst for UK charities (Microsoft x LSEG Hackathon 2026). A charity pastes its ethics
 policy; the tool recommends how to invest $100,000 and explains every accept and reject with
