@@ -292,7 +292,7 @@ def rank_evidence(rules, ticker, k=8):
             out[rule["id"]] = []
             continue
         scored = [
-            (_cosine(qvec, chunk_vecs[i]), is_filing[i], chunks[i]["date"], chunks[i])
+            (_cosine(qvec, chunk_vecs[i]), is_filing[i], chunks[i]["date"] or "", chunks[i])
             for i in range(len(chunks))
         ]
         scored.sort(key=lambda row: (row[0], row[1], row[2]), reverse=True)

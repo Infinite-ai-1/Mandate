@@ -1,0 +1,40 @@
+{
+  "ticker": "XYL",
+  "metrics": [
+    {
+      "name": "revenue_3y_growth",
+      "value": 0.2269,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-XYL-0015"
+    },
+    {
+      "name": "net_margin",
+      "value": 0.1059,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-XYL-0015"
+    },
+    {
+      "name": "debt_to_equity",
+      "value": 0.5126,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-XYL-0015"
+    },
+    {
+      "name": "operating_cash_flow",
+      "value": 1241000000.0,
+      "unit": "usd",
+      "as_of": "2025-12-31",
+      "source_id": "S-XYL-0015"
+    },
+    {
+      "name": "dividends_per_share",
+      "value": 1.6,
+      "unit": "usd",
+      "as_of": "2025-12-31",
+      "source_id": "S-XYL-0015"
+    }
+  ]
+}

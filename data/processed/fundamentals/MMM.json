@@ -1,0 +1,40 @@
+{
+  "ticker": "MMM",
+  "metrics": [
+    {
+      "name": "revenue_3y_growth",
+      "value": -0.2711,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-MMM-0016"
+    },
+    {
+      "name": "net_margin",
+      "value": 0.1303,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-MMM-0016"
+    },
+    {
+      "name": "debt_to_equity",
+      "value": 7.0153,
+      "unit": "ratio",
+      "as_of": "2025-12-31",
+      "source_id": "S-MMM-0016"
+    },
+    {
+      "name": "operating_cash_flow",
+      "value": 2306000000.0,
+      "unit": "usd",
+      "as_of": "2025-12-31",
+      "source_id": "S-MMM-0016"
+    },
+    {
+      "name": "dividends_per_share",
+      "value": 2.92,
+      "unit": "usd",
+      "as_of": "2025-12-31",
+      "source_id": "S-MMM-0016"
+    }
+  ]
+}
