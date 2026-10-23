@@ -1,0 +1,252 @@
+{
+  "S-PM-0001": {
+    "source_id": "S-PM-0001",
+    "ticker": "PM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Philip Morris International Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-12",
+    "url": "https://www.sec.gov/Archives/edgar/data/1413329/000141332926000008/pm-20251231.htm",
+    "section": "Item 1 Business"
+  },
+  "S-PM-0002": {
+    "source_id": "S-PM-0002",
+    "ticker": "PM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Philip Morris International Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-12",
+    "url": "https://www.sec.gov/Archives/edgar/data/1413329/000141332926000008/pm-20251231.htm",
+    "section": "Item 1A Risk Factors"
+  },
+  "S-PM-0003": {
+    "source_id": "S-PM-0003",
+    "ticker": "PM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Philip Morris International Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-12",
+    "url": "https://www.sec.gov/Archives/edgar/data/1413329/000141332926000008/pm-20251231.htm",
+    "section": "Item 3 Legal Proceedings"
+  },
+  "S-PM-0004": {
+    "source_id": "S-PM-0004",
+    "ticker": "PM",
+    "kind": "news",
+    "origin": "guardian",
+    "title": "Tobacco firm accused of targeting young adults in low-income markets",
+    "date": "2026-05-18",
+    "url": "https://www.theguardian.com/business/2026/may/18/tobacco-marketing-low-income-markets",
+    "section": null
+  },
+  "S-PM-0005": {
+    "source_id": "S-PM-0005",
+    "ticker": "PM",
+    "kind": "news",
+    "origin": "finnhub",
+    "title": "Philip Morris raises full-year outlook as heated tobacco volumes climb",
+    "date": "2026-07-22",
+    "url": "https://finnhub.io/news/pm-2026-07-22-outlook",
+    "section": null
+  },
+  "S-PM-0006": {
+    "source_id": "S-PM-0006",
+    "ticker": "PM",
+    "kind": "news",
+    "origin": "gdelt",
+    "title": "Health ministers press for tighter nicotine pouch rules",
+    "date": "2026-09-03",
+    "url": "https://example-newswire.test/articles/nicotine-pouch-rules-2026",
+    "section": null
+  },
+  "S-PM-0007": {
+    "source_id": "S-PM-0007",
+    "ticker": "PM",
+    "kind": "market",
+    "origin": "edgar_xbrl",
+    "title": "Philip Morris International Inc. XBRL company facts",
+    "date": "2026-02-12",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001413329.json",
+    "section": null
+  },
+  "S-PM-0008": {
+    "source_id": "S-PM-0008",
+    "ticker": "PM",
+    "kind": "computed",
+    "origin": "quant",
+    "title": "Risk statistics computed from 5 years of adjusted daily closes",
+    "date": "2026-10-22",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/PM",
+    "section": null
+  },
+  "S-MMM-0001": {
+    "source_id": "S-MMM-0001",
+    "ticker": "MMM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "3M Company Form 10-K for fiscal year 2025",
+    "date": "2026-02-05",
+    "url": "https://www.sec.gov/Archives/edgar/data/66740/000006674026000012/mmm-20251231.htm",
+    "section": "Item 1 Business"
+  },
+  "S-MMM-0002": {
+    "source_id": "S-MMM-0002",
+    "ticker": "MMM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "3M Company Form 10-K for fiscal year 2025",
+    "date": "2026-02-05",
+    "url": "https://www.sec.gov/Archives/edgar/data/66740/000006674026000012/mmm-20251231.htm",
+    "section": "Item 1A Risk Factors"
+  },
+  "S-MMM-0003": {
+    "source_id": "S-MMM-0003",
+    "ticker": "MMM",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "3M Company Form 10-K for fiscal year 2025",
+    "date": "2026-02-05",
+    "url": "https://www.sec.gov/Archives/edgar/data/66740/000006674026000012/mmm-20251231.htm",
+    "section": "Item 3 Legal Proceedings"
+  },
+  "S-MMM-0004": {
+    "source_id": "S-MMM-0004",
+    "ticker": "MMM",
+    "kind": "filing",
+    "origin": "edgar_8k",
+    "title": "3M Company Form 8-K dated 2026-06-11",
+    "date": "2026-06-11",
+    "url": "https://www.sec.gov/Archives/edgar/data/66740/000006674026000044/mmm-20260611.htm",
+    "section": "Item 8.01 Other Events"
+  },
+  "S-MMM-0005": {
+    "source_id": "S-MMM-0005",
+    "ticker": "MMM",
+    "kind": "news",
+    "origin": "guardian",
+    "title": "Water companies say PFAS clean-up costs will outlast settlement payments",
+    "date": "2026-06-12",
+    "url": "https://www.theguardian.com/environment/2026/jun/12/pfas-clean-up-costs-settlement",
+    "section": null
+  },
+  "S-MMM-0006": {
+    "source_id": "S-MMM-0006",
+    "ticker": "MMM",
+    "kind": "regulator",
+    "origin": "epa",
+    "title": "EPA ECHO enforcement summary for 3M Cordova facility",
+    "date": "2026-04-30",
+    "url": "https://echo.epa.gov/detailed-facility-report?fid=110000380567",
+    "section": null
+  },
+  "S-MMM-0007": {
+    "source_id": "S-MMM-0007",
+    "ticker": "MMM",
+    "kind": "news",
+    "origin": "finnhub",
+    "title": "3M lifts guidance as industrial demand recovers",
+    "date": "2026-07-28",
+    "url": "https://finnhub.io/news/mmm-2026-07-28-guidance",
+    "section": null
+  },
+  "S-MMM-0008": {
+    "source_id": "S-MMM-0008",
+    "ticker": "MMM",
+    "kind": "market",
+    "origin": "edgar_xbrl",
+    "title": "3M Company XBRL company facts",
+    "date": "2026-02-05",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000066740.json",
+    "section": null
+  },
+  "S-MMM-0009": {
+    "source_id": "S-MMM-0009",
+    "ticker": "MMM",
+    "kind": "computed",
+    "origin": "quant",
+    "title": "Risk statistics computed from 5 years of adjusted daily closes",
+    "date": "2026-10-22",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/MMM",
+    "section": null
+  },
+  "S-XYL-0001": {
+    "source_id": "S-XYL-0001",
+    "ticker": "XYL",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Xylem Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-24",
+    "url": "https://www.sec.gov/Archives/edgar/data/1524472/000152447226000015/xyl-20251231.htm",
+    "section": "Item 1 Business"
+  },
+  "S-XYL-0002": {
+    "source_id": "S-XYL-0002",
+    "ticker": "XYL",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Xylem Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-24",
+    "url": "https://www.sec.gov/Archives/edgar/data/1524472/000152447226000015/xyl-20251231.htm",
+    "section": "Item 1A Risk Factors"
+  },
+  "S-XYL-0003": {
+    "source_id": "S-XYL-0003",
+    "ticker": "XYL",
+    "kind": "filing",
+    "origin": "edgar_10k",
+    "title": "Xylem Inc. Form 10-K for fiscal year 2025",
+    "date": "2026-02-24",
+    "url": "https://www.sec.gov/Archives/edgar/data/1524472/000152447226000015/xyl-20251231.htm",
+    "section": "Item 3 Legal Proceedings"
+  },
+  "S-XYL-0004": {
+    "source_id": "S-XYL-0004",
+    "ticker": "XYL",
+    "kind": "news",
+    "origin": "guardian",
+    "title": "Leak-detection contracts hand water technology firms a decade of work",
+    "date": "2026-03-09",
+    "url": "https://www.theguardian.com/business/2026/mar/09/leak-detection-water-technology",
+    "section": null
+  },
+  "S-XYL-0005": {
+    "source_id": "S-XYL-0005",
+    "ticker": "XYL",
+    "kind": "news",
+    "origin": "finnhub",
+    "title": "Xylem wins multi-year metering contract with US municipal utility",
+    "date": "2026-08-14",
+    "url": "https://finnhub.io/news/xyl-2026-08-14-metering-contract",
+    "section": null
+  },
+  "S-XYL-0006": {
+    "source_id": "S-XYL-0006",
+    "ticker": "XYL",
+    "kind": "market",
+    "origin": "edgar_xbrl",
+    "title": "Xylem Inc. XBRL company facts",
+    "date": "2026-02-24",
+    "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001524472.json",
+    "section": null
+  },
+  "S-XYL-0007": {
+    "source_id": "S-XYL-0007",
+    "ticker": "XYL",
+    "kind": "computed",
+    "origin": "quant",
+    "title": "Risk statistics computed from 5 years of adjusted daily closes",
+    "date": "2026-10-22",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/XYL",
+    "section": null
+  },
+  "S-AGG-0001": {
+    "source_id": "S-AGG-0001",
+    "ticker": "AGG",
+    "kind": "computed",
+    "origin": "quant",
+    "title": "Risk statistics computed from 5 years of adjusted daily closes",
+    "date": "2026-10-22",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/AGG",
+    "section": null
+  }
+}

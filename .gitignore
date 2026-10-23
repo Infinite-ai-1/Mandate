@@ -190,4 +190,10 @@ pyrightconfig.json
 .ionide
 
 .venv
+
 cache/
+data/cache/
+results/
+.env.*
+!.env.example
+node_modules/
