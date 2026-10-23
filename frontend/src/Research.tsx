@@ -89,6 +89,12 @@ export default function Research({
       ...(portfolio?.trustee_review.map((d) => d.ticker) || []),
     ]),
   ];
+  const nameFor = (t: string) =>
+    portfolio?.holdings.find((h) => h.ticker === t)?.name ||
+    portfolio?.rejected.find((d) => d.ticker === t)?.name ||
+    portfolio?.trustee_review.find((d) => d.ticker === t)?.name ||
+    selection?.selected.find((s) => s.ticker === t)?.name ||
+    "";
   const [chosen, setChosen] = useState("");
   const ticker = tickers.includes(chosen) ? chosen : tickers[0] || "";
   const [active, setActive] = useState("");
@@ -260,10 +266,7 @@ export default function Research({
               {tickers.map((t) => (
                 <option key={t} value={t}>
                   {t}
-                  {portfolio?.holdings.find((h) => h.ticker === t)?.name &&
-                  portfolio.holdings.find((h) => h.ticker === t)?.name !== t
-                    ? ` · ${portfolio.holdings.find((h) => h.ticker === t)?.name}`
-                    : ""}
+                  {nameFor(t) && nameFor(t) !== t ? ` · ${nameFor(t)}` : ""}
                 </option>
               ))}
             </select>
@@ -564,7 +567,9 @@ export default function Research({
                 {history.map((item) => (
                   <article key={item.report.decision.ticker}>
                     <div className="history-heading">
-                      <strong>{item.report.decision.ticker}</strong>
+                      <strong>
+                        {item.report.decision.ticker} · {item.report.decision.name}
+                      </strong>
                       <span>
                         {item.summary?.recommendation
                           ? ratingLabel[item.summary.recommendation]

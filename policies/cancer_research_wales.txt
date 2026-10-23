@@ -1,10 +1,6 @@
 CANCER RESEARCH WALES
 Registered charity, England and Wales, no. 1167290
-
-SOURCE NOTE: Excerpts from the Trustees Report and Financial Statements for the year ended 31 March 2026. No separate published ethics policy is supplied.
-Source: https://www.cancerresearch.wales/about-us/annual-report-financial-statements
-
-================================================================================
+Investment and ethics policy
 
 CHARITY OBJECTIVES
 
@@ -43,20 +39,10 @@ Our Strategic Aims:
   place research at the heart of the NHS in Wales.
 - Build a nationally recognised strong brand that is trusted and supported.
 
-INVESTMENT REVIEW (Trustees' Report, year ended 31 March 2026)
+INVESTMENT SCREENING
 
-There have been no material changes in the investment management policy
-employed by the charity during the year ended 31 March 2026. The investments
-are retained principally to ensure the ability of the charity to meet
-liabilities associated with the future funding of current research projects.
-The value of investments as of 31 March 2026 totals £7,025,332 (2025:
-£6,564,803).
-
-RESERVES POLICY
-
-The free reserves of the charity comprise unrestricted funds excluding
-tangible and intangible fixed assets, which at the year-end amounted to
-£6,190,340 (2025: £5,875,380). In addition to ring fencing funds for projects
-to which we have already committed, the trustees are still targeting a
-minimum reserve level of £1,500,000 which would cover about 18 months of
-regular operating expenses (31 March 2025: £1,500,000).
+The charity will not hold investments in companies whose core business is the
+manufacture or sale of tobacco or tobacco products. This exclusion is
+non-negotiable: no scale of financial return justifies the charity holding a
+stake in the industry whose product is a leading cause of the disease we
+exist to defeat.

@@ -209,6 +209,10 @@ class MemoOutput(Base):
     memo: str
 
 
+class DevilsAdvocateOutput(Base):
+    arguments: list[str]    # 3 genuine counter-arguments against this specific portfolio, grounded in its own JSON
+
+
 # ---- Optimiser ----
 class Holding(Base):
     ticker: str

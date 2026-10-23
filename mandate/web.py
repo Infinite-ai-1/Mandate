@@ -110,7 +110,8 @@ class Workspace:
             ids.append(d["veto"]["source_id"])
         for reason in (d.get("chair") or {}).get("reasons", []):
             ids.extend(self.source_id(d["ticker"], sid) for sid in reason["source_ids"])
-        return dict(ticker=d["ticker"], decision=kind, cap=d["cap"],
+        from .universe import name_for
+        return dict(ticker=d["ticker"], name=name_for(d["ticker"]), decision=kind, cap=d["cap"],
                     decided_by="code_veto" if d["status"] in ("REJECTED_ETHICS", "TRUSTEE_REVIEW") else "chair",
                     reason=d["reason"], source_ids=list(dict.fromkeys(ids)), weighted_score=None)
 
@@ -162,14 +163,14 @@ class Workspace:
                     screening_hints=dict(exclude_sic=[], prefer_sic=[]))
 
     def selection(self, cid):
-        from .universe import EQUITIES
+        from .universe import EQUITIES, name_for
         tickers = EQUITIES
         try:
             analysed = sum(d["ticker"] in EQUITIES for d in self.run(cid)["decisions"])
         except ServiceError:
             analysed = 0
         return dict(charity_id=cid, universe_size=len(tickers), after_prefilter=len(tickers), analysed_count=analysed, excluded_by_sic=[],
-                    selected=[dict(ticker=t, why="Configured research universe; assessment required") for t in tickers])
+                    selected=[dict(ticker=t, name=name_for(t), why="Configured research universe; assessment required") for t in tickers])
 
     def empty_portfolio(self, cid):
         return dict(charity_id=cid, total_usd=C.BUDGET_USD, gbpusd=None, as_of="", holdings=[], cash_usd=C.BUDGET_USD,
@@ -178,19 +179,20 @@ class Workspace:
                     memo="", devils_advocate=[], run_stats=dict(seconds=0, llm_calls=0, tokens=0, by_agent={}))
 
     def portfolio(self, cid):
+        from .universe import name_for
         run = self.run(cid)
         opt = run["optimiser"]
         p = self.empty_portfolio(cid)
         decisions = {d["ticker"]: self.decision(d) for d in run["decisions"]}
         p.update(as_of=run["generated_at"], gbpusd=run.get("gbpusd"),
                  cash_usd=opt["cash_usd"] if opt["ok"] else C.BUDGET_USD,
-                 holdings=[dict(ticker=h["ticker"], name=h["ticker"], is_bond=h["is_bond"], usd=h["dollars"],
+                 holdings=[dict(ticker=h["ticker"], name=name_for(h["ticker"]), is_bond=h["is_bond"], usd=h["dollars"],
                                 shares=h["shares"], price=h["price"], weight=h["weight"], cap=h["cap"],
                                 reason=decisions[h["ticker"]]["reason"], source_ids=decisions[h["ticker"]]["source_ids"]) for h in opt["holdings"]],
                  rejected=[d for d in decisions.values() if d["decision"] == "REJECT"],
                  trustee_review=[d for d in decisions.values() if d["decision"] == "TRUSTEE_REVIEW"],
                  relaxed=opt["relaxed"] + ([opt["error"]] if opt.get("error") else []), memo="" if run.get("memo_stale") else run["memo"],
-                 devils_advocate=run.get("warnings", []), run_stats=dict(seconds=run["stats"]["wall_seconds"],
+                 devils_advocate=run.get("devils_advocate", []), run_stats=dict(seconds=run["stats"]["wall_seconds"],
                     llm_calls=run["stats"]["llm_calls"], tokens=run["stats"]["tokens"], by_agent=run["stats"]["by_agent"]))
         bt = opt.get("backtest") or {}
         p["risk"] = dict(worst_12m=bt.get("worst_12m_return"), volatility=bt.get("annual_vol"), vs_6040_return=bt.get("vs_6040"))
@@ -222,7 +224,7 @@ class Workspace:
                 except ServiceError:
                     reason = "Policy changed or no current assessment. Reassess before buying more."
                 if reason:
-                    review.append(dict(ticker=h["ticker"], reason=reason))
+                    review.append(dict(ticker=h["ticker"], name=h.get("name") or h["ticker"], reason=reason))
             chart = [dict(ticker=h["ticker"], usd=h["usd"], weight=h["weight"]) for h in p["holdings"]]
             chart.append(dict(ticker="Cash", usd=s["cash"], weight=s["cash"] / C.BUDGET_USD))
             return dict(charity_id=cid, simulated=True, policy_revision=s["revision"], portfolio=p,
@@ -283,7 +285,8 @@ class Workspace:
             if shares < 1:
                 raise ServiceError("Amount is below the price of one whole share.")
             spent = round(shares*q["price"], 2)
-            h = s["positions"].get(ticker, dict(ticker=ticker, name=ticker, is_bond=False, shares=0, usd=0))
+            from .universe import name_for
+            h = s["positions"].get(ticker, dict(ticker=ticker, name=name_for(ticker), is_bond=False, shares=0, usd=0))
             h.update(shares=h["shares"]+shares, usd=round(h["usd"]+spent, 2))
             d = self.company(cid, ticker)["decision"]
             h.update(price=h["usd"]/h["shares"], weight=h["usd"]/C.BUDGET_USD, cap=d["cap"], reason=d["reason"], source_ids=d["source_ids"])
