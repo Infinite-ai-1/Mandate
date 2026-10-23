@@ -1,0 +1,38 @@
+[
+  {
+    "ticker": "PM",
+    "name": "Philip Morris International Inc.",
+    "cik": "0001413329",
+    "sic": "2111",
+    "sic_description": "Cigarettes",
+    "form": "10-K",
+    "is_bond": false
+  },
+  {
+    "ticker": "MMM",
+    "name": "3M Company",
+    "cik": "0000066740",
+    "sic": "3841",
+    "sic_description": "Surgical & Medical Instruments & Apparatus",
+    "form": "10-K",
+    "is_bond": false
+  },
+  {
+    "ticker": "XYL",
+    "name": "Xylem Inc.",
+    "cik": "0001524472",
+    "sic": "3561",
+    "sic_description": "Pumps & Pumping Equipment",
+    "form": "10-K",
+    "is_bond": false
+  },
+  {
+    "ticker": "AGG",
+    "name": "iShares Core U.S. Aggregate Bond ETF",
+    "cik": "0001100663",
+    "sic": "6726",
+    "sic_description": "Investment Offices NEC",
+    "form": "10-K",
+    "is_bond": true
+  }
+]

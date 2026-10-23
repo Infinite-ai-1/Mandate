@@ -1,0 +1,40 @@
+{
+  "ticker": "MMM",
+  "metrics": [
+    {
+      "name": "volatility_1y",
+      "value": 0.274,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-MMM-0009"
+    },
+    {
+      "name": "beta_vs_spy",
+      "value": 0.98,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-MMM-0009"
+    },
+    {
+      "name": "max_drawdown_5y",
+      "value": -0.512,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-MMM-0009"
+    },
+    {
+      "name": "worst_12m_return",
+      "value": -0.341,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-MMM-0009"
+    },
+    {
+      "name": "dividend_yield",
+      "value": 0.021,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-MMM-0009"
+    }
+  ]
+}

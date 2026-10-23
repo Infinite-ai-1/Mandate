@@ -190,3 +190,5 @@ pyrightconfig.json
 .ionide
 
 .venv
+# Raw API + LLM cache (data/processed/ is committed for the demo)
+data/cache/

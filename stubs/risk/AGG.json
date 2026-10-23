@@ -1,0 +1,40 @@
+{
+  "ticker": "AGG",
+  "metrics": [
+    {
+      "name": "volatility_1y",
+      "value": 0.054,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-AGG-0001"
+    },
+    {
+      "name": "beta_vs_spy",
+      "value": 0.11,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-AGG-0001"
+    },
+    {
+      "name": "max_drawdown_5y",
+      "value": -0.183,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-AGG-0001"
+    },
+    {
+      "name": "worst_12m_return",
+      "value": -0.079,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-AGG-0001"
+    },
+    {
+      "name": "dividend_yield",
+      "value": 0.038,
+      "unit": "ratio",
+      "as_of": "2026-10-22",
+      "source_id": "S-AGG-0001"
+    }
+  ]
+}
