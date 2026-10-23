@@ -207,3 +207,44 @@ class ResolvedPolicy(Base):
 
 class MemoOutput(Base):
     memo: str
+
+
+# ---- Optimiser ----
+class Holding(Base):
+    ticker: str
+    is_bond: bool
+    cap: float
+    target_weight: float
+    shares: int
+    price: float
+    dollars: float
+    weight: float           # realised: dollars / budget
+
+
+class Backtest(Base):
+    """Past performance on the final weights, not a forecast. All computed in code."""
+    window_start: str
+    window_end: str
+    worst_12m_return: Optional[float] = None
+    worst_12m_limit: float
+    max_drawdown: float
+    annual_vol: float
+    trailing_yield: float
+    min_yield: float
+    total_return: float
+    benchmark_6040_return: float
+    vs_6040: float
+    worst_12m_ok: Optional[bool] = None
+    yield_ok: bool
+
+
+class OptimiserResult(Base):
+    ok: bool
+    error: Optional[str] = None
+    relaxed: list[str] = []             # every constraint the chain had to relax, shown in the UI
+    bond_cap_used: float = 0.0
+    holdings: list[Holding] = []
+    invested_usd: float = 0.0
+    cash_usd: float = 0.0
+    checks: dict[str, bool] = {}
+    backtest: Optional[Backtest] = None
