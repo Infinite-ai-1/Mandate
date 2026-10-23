@@ -1,0 +1,14 @@
+# Environment variables and keys
+.env
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Local cache data
+data/
+
+# Python artifacts
+__pycache__/
+*.pyc
