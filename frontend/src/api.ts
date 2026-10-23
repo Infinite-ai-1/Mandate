@@ -93,6 +93,8 @@ export interface ScoreOutput {
   summary: string;
 }
 export interface CompanyReport {
+  simulated?: boolean;
+  devils_advocate?: string[];
   melchior: EthicsOutput;
   balthasar: ScoreOutput;
   casper: ScoreOutput;

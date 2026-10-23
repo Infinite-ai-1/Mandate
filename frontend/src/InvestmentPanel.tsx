@@ -82,6 +82,7 @@ export default function InvestmentPanel({
       <div>
         <p className="research-kicker">From research to your portfolio</p>
         <h3>How much should we invest?</h3>
+        {ticker.startsWith("DEMO-") && <p className="notice">★ Demo allocation using a simulated share price. This spends paper cash and appears as a labelled demo holding.</p>}
         {quote.data && (
           <>
             <p className="suggested-amount">

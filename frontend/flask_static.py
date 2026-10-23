@@ -21,7 +21,8 @@ def register_frontend(app, dist=DIST, assets=True):
                 elif "/charities/" in request.path and "/companies/" in request.path:
                     provider=app.config.get("MANDATE_RESEARCH_VOTES")
                     votes=provider(request.path) if provider else None
-                    summary=research_summary(response.get_json(),votes)
+                    report=response.get_json()
+                    summary=research_summary(report,report.get("explicit_votes") if report.get("simulated") else votes)
                     response.headers["X-Mandate-Research"]=json.dumps(summary,separators=(",",":"),allow_nan=False)
                     response.headers.add("Access-Control-Expose-Headers","X-Mandate-Research")
                     return response

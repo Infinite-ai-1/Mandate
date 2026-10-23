@@ -1,0 +1,78 @@
+[
+  {
+    "ticker": "XYL",
+    "name": "Xylem",
+    "decision": "APPROVE",
+    "label": "Approved",
+    "cap": 10,
+    "notes": [
+      "Assume the supplied evidence supports every adopted ethics rule. Melchior records a pass in this scenario.",
+      "Assume verified financial records show a sustainable business and adequate liquidity. Balthasar supports investment.",
+      "Assume the measured risk fits the trustee limits. Casper supports the standard position limit.",
+      "The simulated ethics gate is clear and both specialist assessments support investment. Chair approves the standard cap."
+    ],
+    "reason": "All simulated rule checks pass and the financial and risk cases support approval.",
+    "challenges": [
+      "A clean screen depends on the completeness of the evidence. What adverse evidence might be missing?",
+      "Would the allocation still be suitable if liquidity or sector concentration deteriorated?",
+      "Before any real allocation, replace these assumptions with current verified sources."
+    ]
+  },
+  {
+    "ticker": "MSFT",
+    "name": "Microsoft",
+    "decision": "APPROVE_CAPPED",
+    "label": "Approved with a cap",
+    "cap": 5,
+    "notes": [
+      "Assume the available evidence passes the adopted ethics rules. Melchior finds no blocking issue in this scenario.",
+      "Assume verified financial records support the investment case. Balthasar supports a position.",
+      "Assume the charity already has material exposure to the same sector. Casper requests a smaller position to limit concentration.",
+      "The ethics gate passes, but the simulated concentration concern remains. Chair approves a reduced cap rather than a full position."
+    ],
+    "reason": "The simulated investment case is acceptable, with a reduced cap to address concentration risk.",
+    "challenges": [
+      "A smaller position reduces exposure but does not remove the concentration risk.",
+      "Check overlapping exposure inside funds as well as direct holdings.",
+      "Would a different eligible company provide better diversification?"
+    ]
+  },
+  {
+    "ticker": "PM",
+    "name": "Philip Morris",
+    "decision": "REJECT",
+    "label": "Rejected",
+    "cap": 0,
+    "notes": [
+      "Assume trustees have explicitly adopted a tobacco exclusion and the scenario evidence confirms prohibited exposure. Melchior records an ethics failure.",
+      "Assume the business has a positive financial case. Balthasar's financial support cannot override the ethics gate.",
+      "Casper notes that a manageable financial risk would not resolve the simulated policy breach.",
+      "The code veto blocks approval because this scenario has a confirmed ethics failure. Chair records rejection regardless of financial support."
+    ],
+    "reason": "A simulated verified breach of an explicitly adopted tobacco exclusion triggers the ethics veto.",
+    "challenges": [
+      "Confirm the exclusion is an adopted trustee rule rather than an inferred mission preference.",
+      "Check the evidence identifies the right issuer and the activity covered by the rule.",
+      "A strong financial case is not a reason to bypass a confirmed policy exclusion."
+    ]
+  },
+  {
+    "ticker": "MMM",
+    "name": "3M",
+    "decision": "TRUSTEE_REVIEW",
+    "label": "Trustee review",
+    "cap": 0,
+    "notes": [
+      "Assume relevant evidence is incomplete or ambiguous. Melchior flags the unresolved rule instead of inventing a pass.",
+      "Assume some financial evidence supports investment. Balthasar records the case subject to the unresolved ethics check.",
+      "Casper identifies uncertainty that cannot be resolved from the supplied scenario evidence.",
+      "Missing verification prevents approval. Chair refers the case to trustees and requests targeted evidence before another assessment."
+    ],
+    "reason": "The simulated evidence is insufficient to approve or establish a confirmed breach. Trustees must resolve the gap.",
+    "challenges": [
+      "A flag is not proof of wrongdoing; specify exactly which evidence would resolve it.",
+      "Set an owner and review date so the case does not remain unresolved indefinitely.",
+      "Would clarification from trustees settle the scope of the rule before more research is commissioned?"
+    ]
+  }
+]

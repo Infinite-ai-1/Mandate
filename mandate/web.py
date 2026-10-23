@@ -19,6 +19,7 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 from . import config as C
+from .demos import SCENARIOS, PRICES, report as demo_report
 
 CHARITIES = {
     "cancer_research_wales": "Cancer Research Wales",
@@ -122,6 +123,11 @@ class Workspace:
         return sid
 
     def company(self, cid, ticker):
+        if ticker in SCENARIOS:
+            state = self.state(cid)
+            if state.get("demo_assessments", {}).get(ticker) != state["revision"]:
+                raise ServiceError("Run this starred demo before allocating, and rerun after policy changes.", 409)
+            return demo_report(ticker)
         run = self.run(cid)
         d = next((d for d in run["decisions"] if d["ticker"] == ticker), None)
         if not d:
@@ -239,15 +245,18 @@ class Workspace:
                 reason = d["reason"]
                 if d["decision"] not in ("APPROVE", "APPROVE_CAPPED"):
                     raise ServiceError("Current assessment does not permit an allocation.")
-                prices = market.load_prices()
-                series = prices[ticker].dropna()
-                price = float(series.iloc[-1])
-                age = (datetime.now(timezone.utc).date() - series.index[-1].date()).days
+                if ticker in SCENARIOS:
+                    price, age = PRICES[ticker], 0
+                else:
+                    prices = market.load_prices()
+                    series = prices[ticker].dropna()
+                    price = float(series.iloc[-1])
+                    age = (datetime.now(timezone.utc).date() - series.index[-1].date()).days
                 if age > 7 or not math.isfinite(price) or price <= 0:
                     raise ServiceError("Market price is stale or unavailable. Refresh research before allocating.")
                 held = s["positions"].get(ticker, {}).get("usd", 0)
                 maximum = max(0, min(s["cash"], C.BUDGET_USD * d["cap"] - held))
-                target = next((h["usd"] for h in self.portfolio(cid)["holdings"] if h["ticker"] == ticker), 0)
+                target = C.BUDGET_USD * d["cap"] if ticker in SCENARIOS else next((h["usd"] for h in self.portfolio(cid)["holdings"] if h["ticker"] == ticker), 0)
                 suggested = min(maximum, max(0, target-held))
             except (ServiceError, KeyError, IndexError, FileNotFoundError) as e:
                 blocked = str(e)
@@ -288,6 +297,8 @@ class Workspace:
             h.update(shares=h["shares"]+shares, usd=round(h["usd"]+spent, 2))
             d = self.company(cid, ticker)["decision"]
             h.update(price=h["usd"]/h["shares"], weight=h["usd"]/C.BUDGET_USD, cap=d["cap"], reason=d["reason"], source_ids=d["source_ids"])
+            if ticker in SCENARIOS:
+                h["name"] = "★ " + SCENARIOS[ticker]["name"] + " · DEMO (simulated price)"
             from .universe import BONDS
             h["is_bond"] = ticker in BONDS
             s["positions"][ticker] = h
@@ -468,11 +479,25 @@ def create_app(state_dir=None, serve_frontend=True):
     @app.post("/api/companies/<ticker>/refresh")
     def refresh(ticker):
         from .universe import EQUITIES
-        if ticker not in EQUITIES:
+        if ticker not in EQUITIES and ticker not in SCENARIOS:
             raise ServiceError("Ticker is not in the configured research universe.", 404)
         cid = request.get_json().get("charity_id")
         if not cid:
             raise ServiceError("charity_id is required for research.")
+        if ticker in SCENARIOS:
+            def simulate(progress):
+                import time
+                progress("SIMULATED DEMO: scripted assumptions and illustrative prices; no live model or market calls.")
+                for agent, note in zip(("melchior", "balthasar", "casper", "chair"), SCENARIOS[ticker]["notes"]):
+                    progress(f"[{agent}] Reviewing scenario assumptions")
+                    time.sleep(.7)
+                    progress(f"[{agent}:done] {note}")
+                with ws.lock:
+                    state = ws.state(cid)
+                    state.setdefault("demo_assessments", {})[ticker] = state["revision"]
+                    ws.save(cid, state)
+                return None
+            return jsonify(ws.submit(cid, simulate)), 202
         return jsonify(ws.submit(cid, lambda progress: ws.assess(cid, progress, ticker))), 202
 
     @app.get("/api/jobs/<jid>")
@@ -494,6 +519,10 @@ def create_app(state_dir=None, serve_frontend=True):
 
     @app.get("/api/sources/<sid>")
     def source(sid):
+        ticker = sid.removesuffix("-ASSUMPTION")
+        if ticker in SCENARIOS and sid.endswith("-ASSUMPTION"):
+            return jsonify(source_id=sid, ticker=ticker, kind="demo", origin="scripted_demo", title="Simulated scenario assumptions; not factual company evidence",
+                           date="", url="", section=" ".join(SCENARIOS[ticker]["notes"]))
         import sources
         from . import evidence
         if sid.startswith("metric:"):

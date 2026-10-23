@@ -19,6 +19,44 @@ CID = "british_thoracic_society"
 
 
 class IntegrationTests(unittest.TestCase):
+    def test_demo_jobs_use_standard_routes_and_allocation_rules(self):
+        from mandate.demos import SCENARIOS
+        for ticker, scenario in SCENARIOS.items():
+            with self.subTest(ticker=ticker), patch("time.sleep", return_value=None):
+                response = self.client.post(f"/api/companies/{ticker}/refresh", json={"charity_id": CID})
+                self.assertEqual(response.status_code, 202)
+                # Avoid the test wait helper's mocked sleep racing the worker.
+                self.ws.executor.submit(lambda: None).result(timeout=5)
+                job = self.client.get('/api/jobs/'+response.json['job_id']).json
+                self.assertEqual(job['status'], 'done')
+                self.assertTrue(any('[melchior:done]' in msg for msg in job['progress']))
+                report = self.client.get(f'/api/charities/{CID}/companies/{ticker}')
+                self.assertEqual(report.json['decision']['decision'], scenario['decision'])
+                self.assertTrue(report.json['simulated'])
+                self.assertIn('X-Mandate-Research', report.headers)
+                quote = self.client.get(f'/api/charities/{CID}/companies/{ticker}/investment-quote').json
+                allowed = scenario['decision'] in ('APPROVE', 'APPROVE_CAPPED')
+                self.assertEqual(quote['buy_allowed'], allowed)
+                body = dict(ticker=ticker, amount_usd=1000, request_id=ticker, policy_revision=0)
+                buy = self.client.post(f'/api/charities/{CID}/investments', json=body)
+                self.assertEqual(buy.status_code, 200 if allowed else 409)
+                if allowed:
+                    self.assertIn('DEMO', buy.json['account']['portfolio']['holdings'][-1]['name'])
+                    self.assertEqual(self.client.post(f'/api/charities/{CID}/investments', json=body).json['receipt'], buy.json['receipt'])
+                    oversized = self.client.post(f'/api/charities/{CID}/investments', json={**body,'amount_usd':quote['maximum_usd']+1,'request_id':ticker+'-over'})
+                    self.assertEqual(oversized.status_code, 409)
+        account = self.ws.account(CID)
+        self.assertEqual(account['invested_usd'], 2000)
+        self.assertEqual(len(account['portfolio']['holdings']), 2)
+        self.assertEqual(sum(c['usd'] for c in account['chart']), C.BUDGET_USD)
+        state = self.ws.state(CID)
+        state['revision'] += 1
+        self.ws.save(CID, state)
+        self.assertFalse(self.ws.quote(CID, 'DEMO-XYL')['buy_allowed'])
+        self.assertEqual(len(self.ws.account(CID)['to_verify']), 2)
+        # No demo approval has been published for the actual issuer.
+        self.assertEqual(self.client.get(f'/api/charities/{CID}/companies/XYL').status_code, 409)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.app = create_app(self.tmp.name)

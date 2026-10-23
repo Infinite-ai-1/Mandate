@@ -107,7 +107,12 @@ MSFT (Approved with a cap), PM (Rejected), MMM (Trustee review). The company nam
 are illustrative; scenario assumptions and outcomes are simulated, independent
 of the selected charity's actual policy or current research. Each walks through
 three specialists, a Chair decision and specific Devil's advocate challenges.
-They make no model calls and cannot allocate cash or overwrite actual results.
+They make no model calls and never overwrite live issuer assessments. Choose them
+in the normal research selector; they use the same agent cards, Chair results and
+allocation form. Approved and capped scenarios can allocate from the paper pot
+at explicitly simulated prices; their DEMO-* holdings appear in the allocation
+table and pie. Rejected and review cases remain blocked. Policy edits invalidate
+demo approvals just like live assessments.
 
 The real portfolio's Devil's advocate is calculated from the actual assessment,
 including evidence gaps, bond-screening exemptions, assumed limits, relaxations,

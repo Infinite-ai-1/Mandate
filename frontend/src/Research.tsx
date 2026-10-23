@@ -13,7 +13,13 @@ import {
 } from "./api";
 import type { Purchase } from "./api";
 import InvestmentPanel from "./InvestmentPanel";
-import DemoResearch from "./DemoResearch";
+const demoOptions: Record<string, string> = {
+  "DEMO-XYL": "★ XYL · Demo — Approved",
+  "DEMO-MSFT": "★ MSFT · Demo — Approved with a cap",
+  "DEMO-PM": "★ PM · Demo — Rejected",
+  "DEMO-MMM": "★ MMM · Demo — Trustee review",
+};
+const decisionLabels = { APPROVE: "Approved", APPROVE_CAPPED: "Approved with a cap", REJECT: "Rejected", TRUSTEE_REVIEW: "Trustee review" };
 
 const agents: ResearchAgent[] = ["melchior", "balthasar", "casper"];
 const names = {
@@ -83,6 +89,7 @@ export default function Research({
 }) {
   const tickers = [
     ...new Set([
+      ...Object.keys(demoOptions),
       ...(selection?.selected.map((s) => s.ticker) || []),
       ...(portfolio?.holdings.filter((h) => !h.is_bond).map((h) => h.ticker) ||
         []),
@@ -228,7 +235,6 @@ export default function Research({
     result?.report.decision.ticker === active;
   return (
     <div className="research-page">
-      <DemoResearch disabled={running || externalBusy} />
       <section className="research-intro">
         <p className="research-kicker">Stock research</p>
         <h2>
@@ -261,7 +267,7 @@ export default function Research({
               {!ticker && <option>Waiting for selected companies</option>}
               {tickers.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {demoOptions[t] || t}
                   {portfolio?.holdings.find((h) => h.ticker === t)?.name &&
                   portfolio.holdings.find((h) => h.ticker === t)?.name !== t
                     ? ` · ${portfolio.holdings.find((h) => h.ticker === t)?.name}`
@@ -278,8 +284,9 @@ export default function Research({
           </button>
         </form>
         <p className="research-caption">
-          The agents read stored evidence. Their activity appears below as the
-          API reports it.
+          {ticker.startsWith("DEMO-")
+            ? "★ Demo: scripted assessments and simulated prices. Approved demos can be added to your paper pot; rejected and review cases cannot."
+            : "The agents read stored evidence. Their activity appears below as the API reports it."}
         </p>
       </section>
       {phase !== "choose" && (
@@ -287,7 +294,7 @@ export default function Research({
           <section
             ref={stage}
             className="research-stage"
-            aria-label="Live agent assessments"
+            aria-label="Agent assessments"
           >
             <div className="research-section-title">
               <h3>
@@ -365,7 +372,7 @@ export default function Research({
                               <blockquote>{v.quote}</blockquote>
                               <p className="verification-note">
                                 {v.verified === true
-                                  ? "✓ Quote verified"
+                                  ? result.report.simulated ? "Demo assumption · simulated verification" : "✓ Quote verified"
                                   : v.verified === false
                                     ? "Quote not verified"
                                     : "Verification pending"}
@@ -436,12 +443,11 @@ export default function Research({
                   </p>
                 </div>
               </div>
+              {result.report.simulated && <p className="notice">★ Scripted demo assessment · Illustrative price and rule assumptions. Demo holdings are labelled in your paper portfolio.</p>}
               <div className="chair-verdict">
                 <div>
                   <p className="verdict-label">
-                    {summary?.recommendation
-                      ? ratingLabel[summary.recommendation]
-                      : "Decision received"}
+                    {decisionLabels[result.report.decision.decision]}{result.report.simulated ? " · simulated" : ""}
                   </p>
                   <h2>
                     {summary?.chair_reason || result.report.decision.reason}
@@ -449,7 +455,7 @@ export default function Research({
                   {sources(result.report.decision.source_ids)}
                 </div>
                 <div className="ethics-measure">
-                  <span>Verified ethics score</span>
+                  <span>{result.report.simulated ? "Simulated ethics coverage" : "Verified ethics score"}</span>
                   <strong>
                     {summary?.ethics_score === null ||
                     summary?.ethics_score === undefined
@@ -543,6 +549,7 @@ export default function Research({
                   </section>
                 ))}
               </div>
+              {!!result.report.devils_advocate?.length && <section className="panel" aria-label="Research devil’s advocate"><h3>Devil’s advocate</h3><ul>{result.report.devils_advocate.map((challenge) => <li key={challenge}>{challenge}</li>)}</ul></section>}
               {onPurchased && (
                 <InvestmentPanel
                   key={active + run}

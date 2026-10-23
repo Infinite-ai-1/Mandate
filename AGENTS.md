@@ -14,8 +14,10 @@ the invented demo clause was removed. Do not silently reintroduce it.
 All areas may be changed when needed for an explicitly requested integration.
 Test doubles must stay inside tests and never become application data.
 User-authorized exception: the Research page contains four starred, explicitly
-labelled scripted stock scenarios in DemoResearch.tsx. They illustrate the four
-decision paths, make no network calls, and never modify real assessments or accounts.
+labelled scripted stock scenarios, served by mandate/demos.py through the normal
+research routes. DEMO-* identities never replace live ticker assessments. Approved
+and capped demos may allocate paper cash through the standard buy route and must
+remain visibly labelled in holdings; rejected and review scenarios cannot buy.
 Devil's advocate for real portfolios is calculated from actual run conditions.
 
 ## What we're building
