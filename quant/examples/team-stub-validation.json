@@ -1,0 +1,62 @@
+{
+  "label": "SYNTHETIC team stubs; past performance, not a forecast",
+  "stub_revision": "7d3505d8a2fbba840e4747704cf8ec91a62c13a5",
+  "price_layout": "wide daily closes; no cash dividends",
+  "missing_shared_models": [
+    "Metric",
+    "Portfolio"
+  ],
+  "tickers": {
+    "AGG": {
+      "as_of": "2026-10-22",
+      "price_metrics": {
+        "annualised_volatility": 0.05335041554978298,
+        "max_drawdown": -0.1268722364356919,
+        "worst_12m": -0.08933355605055182,
+        "beta": 0.0010161499521036275
+      },
+      "dividend_yield_status": "unavailable: stub contains no cash dividend history"
+    },
+    "MMM": {
+      "as_of": "2026-10-22",
+      "price_metrics": {
+        "annualised_volatility": 0.28034831791337483,
+        "max_drawdown": -0.42559285476672215,
+        "worst_12m": -0.3353966289535194,
+        "beta": 0.038717891514405425
+      },
+      "dividend_yield_status": "unavailable: stub contains no cash dividend history"
+    },
+    "PM": {
+      "as_of": "2026-10-22",
+      "price_metrics": {
+        "annualised_volatility": 0.21407085489402308,
+        "max_drawdown": -0.32694433140922263,
+        "worst_12m": -0.25613117976280375,
+        "beta": 0.003958204061652406
+      },
+      "dividend_yield_status": "unavailable: stub contains no cash dividend history"
+    },
+    "SPY": {
+      "as_of": "2026-10-22",
+      "price_metrics": {
+        "annualised_volatility": 0.17278855028927978,
+        "max_drawdown": -0.3404150993652444,
+        "worst_12m": -0.3092986597166101,
+        "beta": 0.9999999999999997
+      },
+      "dividend_yield_status": "unavailable: stub contains no cash dividend history"
+    },
+    "XYL": {
+      "as_of": "2026-10-22",
+      "price_metrics": {
+        "annualised_volatility": 0.24558377326891045,
+        "max_drawdown": -0.37170833315788065,
+        "worst_12m": -0.33573886144766485,
+        "beta": -0.0027254925600814725
+      },
+      "dividend_yield_status": "unavailable: stub contains no cash dividend history"
+    }
+  },
+  "integration_status": "blocked: cash dividend observations, compatible shared models, source registry and API still required"
+}
