@@ -12,7 +12,7 @@ class Base(BaseModel):
 class Chunk(Base):
     source_id: str          # MMM-10K-c0042 / MMM-20F-c0042 / MMM-NEWS-007
     ticker: str
-    kind: Literal["filing", "news"]
+    kind: Literal["filing", "news", "regulator", "market", "computed"]
     section: str = ""
     url: str = ""
     date: str = ""
@@ -38,7 +38,7 @@ class ProposedConflict(Base):
     text: str
     keywords: list[str] = []
     reasoning: str = ""
-    approved: bool = True   # set by code, pre-approved for the demo
+    approved: bool = False  # proposed restrictions need explicit trustee approval
 
 
 class VagueWording(Base):

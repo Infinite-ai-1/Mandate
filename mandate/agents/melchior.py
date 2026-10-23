@@ -15,7 +15,8 @@ Return ONLY JSON:
 Rules:
 - FAIL requires a quote copied word for word from one evidence chunk, plus its source_id.
 - If the evidence is ambiguous or insufficient to decide, answer FLAG and explain what is missing.
-- PASS means nothing in the evidence breaches the rule. quote may be null.
+- PASS requires a relevant verbatim quote and source_id supporting compliance with the rule.
+- Missing evidence is FLAG, never PASS.
 - reason: one plain sentence a volunteer trustee would understand.
 - Do not use outside knowledge."""
 

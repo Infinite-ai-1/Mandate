@@ -52,8 +52,10 @@ def verify_verdicts(ticker: str, rule_ids: list[str], out: MelchiorOutput) -> Me
             else:
                 result.append(v.model_copy(update={"verdict": "FLAG", "verified": False, "downgraded": True,
                                                    "reason": f"{UNVERIFIED_FAIL} Model said: {v.reason}"}))
-        else:   # PASS / FLAG: a quote is optional, but if given it is checked
-            result.append(v.model_copy(update={"verified": _quote_ok(v, ticker) if v.quote else True}))
+        else:
+            verified = _quote_ok(v, ticker)
+            result.append(v.model_copy(update={"verified": verified,
+                "verdict": v.verdict if verified else "FLAG"}))
     return MelchiorResult(ticker=ticker, verdicts=result)
 
 

@@ -218,7 +218,7 @@ function ScoreCard({
       <p className="eyebrow">{report.agent}</p>
       <h3>{report.model}</h3>
       <p className="score">
-        {number.format(report.score)} <span>score</span>
+        {report.score === null ? "Unavailable" : number.format(report.score)} <span>verified evidence coverage (%)</span>
       </p>
       <p>{report.summary}</p>
       {report.reasons.map((r, i) => (
@@ -560,7 +560,7 @@ function AgentDecisions({
                             : "Verification pending"}
                       </Badge>
                       <p className="muted">
-                        Reported confidence: {percent.format(v.confidence)}
+                        Evidence verified: {v.verified ? "Yes" : "No"}
                       </p>
                     </div>
                     <Chips ids={[v.source_id]} open={open} />
@@ -730,8 +730,8 @@ function StatsDetails({
         <div className="risk-grid">
           <RiskCard
             title="Trailing dividend yield"
-            value={percent.format(p.risk.yield)}
-            ok={p.checks.yield_ok}
+            value={p.risk.yield === null ? "Unavailable" : percent.format(p.risk.yield)}
+            ok={p.checks.yield_ok ?? undefined}
             limit={
               r
                 ? `Minimum ${percent.format(r.constraints.min_yield)}`
@@ -739,19 +739,19 @@ function StatsDetails({
             }
           />
           <RiskCard
-            title="Historical drawdown check"
-            value={p.checks.max_drawdown_ok ? "Within limit" : "Outside limit"}
-            ok={p.checks.max_drawdown_ok}
+            title="Worst twelve-month return check"
+            value={p.checks.max_drawdown_ok === null ? "Not assessed" : p.checks.max_drawdown_ok ? "Within limit" : "Outside limit"}
+            ok={p.checks.max_drawdown_ok ?? undefined}
             limit={
               r
-                ? `Drawdown floor ${percent.format(r.constraints.max_drawdown)}`
+                ? `Twelve-month return floor ${percent.format(r.constraints.max_drawdown)}`
                 : "Limit loading"
             }
           />
           <RiskCard
             title="Bond allocation check"
-            value={p.checks.bonds_ok ? "Within limit" : "Outside limit"}
-            ok={p.checks.bonds_ok}
+            value={p.checks.bonds_ok === null ? "Not assessed" : p.checks.bonds_ok ? "Within limit" : "Outside limit"}
+            ok={p.checks.bonds_ok ?? undefined}
             limit={
               r
                 ? `Minimum ${percent.format(r.constraints.min_bonds)}`
@@ -760,15 +760,15 @@ function StatsDetails({
           />
           <RiskCard
             title="Annualised volatility"
-            value={percent.format(p.risk.volatility)}
+            value={p.risk.volatility === null ? "Unavailable" : percent.format(p.risk.volatility)}
           />
           <RiskCard
             title="Worst rolling twelve months"
-            value={percent.format(p.risk.worst_12m)}
+            value={p.risk.worst_12m === null ? "Unavailable" : percent.format(p.risk.worst_12m)}
           />
           <RiskCard
-            title="Return vs SPY / AGG benchmark"
-            value={percent.format(p.risk.vs_6040_return)}
+            title="Return vs SPY / BND benchmark"
+            value={p.risk.vs_6040_return === null ? "Unavailable" : percent.format(p.risk.vs_6040_return)}
           />
         </div>
         <p className="muted">
@@ -951,6 +951,12 @@ export default function App() {
         setJob(next);
         setActionError("");
         if (next.status === "done") {
+          if (next.result === null) {
+            setVersion((v) => v + 1);
+            setJobId(null);
+            setRuleText("");
+            return;
+          }
           {
             const result =
               next.result?.charity_id === jobCharity
@@ -1093,10 +1099,7 @@ export default function App() {
         </div>
       </aside>
       <div className="workspace">
-        <div className="synthetic-banner" role="status">
-          SYNTHETIC FIXTURE DATA · Offline integration preview · Not a real
-          charity recommendation
-        </div>
+        <div className="paper-banner" role="status">Paper portfolio · Recorded purchase costs, not live valuations · No real-money trades</div>
         <header className="topbar">
           <span>Mandate / Research & investment</span>
           <div className="row">
@@ -1199,7 +1202,7 @@ export default function App() {
                     rules={r}
                     version={version}
                     open={setSource}
-                    refresh={(ticker) => void start(() => api.refresh(ticker))}
+                    refresh={(ticker) => void start(() => api.refresh(ticker, id))}
                     busy={!!busy}
                   />
                 </>
@@ -1453,7 +1456,7 @@ export default function App() {
                           </p>
                           <div className="row">
                             <Badge>Cash {money.format(p.cash_usd)}</Badge>
-                            <Badge>GBP/USD {number.format(p.gbpusd)}</Badge>
+                            <Badge>GBP/USD {p.gbpusd === null ? "Unavailable" : number.format(p.gbpusd)}</Badge>
                           </div>
                           {!totals && (
                             <p className="muted small">
@@ -1608,7 +1611,7 @@ export default function App() {
                                         disabled={busy}
                                         onClick={() =>
                                           void start(() =>
-                                            api.refresh(h.ticker),
+                                            api.refresh(h.ticker, id),
                                           )
                                         }
                                         aria-label={`Refresh ${h.ticker}`}
@@ -1637,7 +1640,7 @@ export default function App() {
                 <>
                   <h2>Portfolio stats</h2>
                   <Status resource={account} />
-                  <StatsDetails p={p} r={r} rules={rules} />
+                  <StatsDetails p={portfolio.data ?? p} r={r} rules={rules} />
                 </>
               )}
               {tab === "rejections" && p && (
@@ -1794,7 +1797,7 @@ export default function App() {
           version={version}
           close={() => setCompany(null)}
           openSource={setSource}
-          refresh={(ticker) => void start(() => api.refresh(ticker))}
+          refresh={(ticker) => void start(() => api.refresh(ticker, id))}
           busy={!!busy}
         />
       )}

@@ -88,7 +88,7 @@ export interface ScoreOutput {
   ticker: string;
   agent: "balthasar" | "casper";
   model: string;
-  score: number;
+  score: number | null;
   reasons: { claim: string; source_ids: string[]; verified: boolean | null }[];
   summary: string;
 }
@@ -101,17 +101,17 @@ export interface CompanyReport {
 export interface Portfolio {
   charity_id: string;
   total_usd: number;
-  gbpusd: number;
+  gbpusd: number | null;
   as_of: string;
   holdings: Holding[];
   cash_usd: number;
   risk: {
-    worst_12m: number;
-    yield: number;
-    volatility: number;
-    vs_6040_return: number;
+    worst_12m: number | null;
+    yield: number | null;
+    volatility: number | null;
+    vs_6040_return: number | null;
   };
-  checks: { max_drawdown_ok: boolean; yield_ok: boolean; bonds_ok: boolean };
+  checks: { max_drawdown_ok: boolean | null; yield_ok: boolean | null; bonds_ok: boolean | null };
   relaxed: string[];
   rejected: Decision[];
   trustee_review: Decision[];
@@ -246,7 +246,7 @@ const holding = (x: unknown) =>
   strings(x.source_ids);
 const score = (x: unknown) =>
   fields(x, ["ticker", "agent", "model", "summary"], str) &&
-  fields(x, ["score"], num) &&
+  obj(x) && (x.score === null || num(x.score)) &&
   obj(x) &&
   array(
     x.reasons,
@@ -265,17 +265,17 @@ const verdict = (x: unknown) =>
 const portfolio = (x: unknown) =>
   obj(x) &&
   fields(x, ["charity_id", "as_of", "memo"], str) &&
-  fields(x, ["total_usd", "gbpusd", "cash_usd"], num) &&
+  fields(x, ["total_usd", "cash_usd"], num) && (x.gbpusd === null || num(x.gbpusd)) &&
   array(x.holdings, holding) &&
   array(x.rejected, decision) &&
   array(x.trustee_review, decision) &&
   strings(x.relaxed) &&
   strings(x.devils_advocate) &&
-  fields(x.risk, ["worst_12m", "yield", "volatility", "vs_6040_return"], num) &&
+  fields(x.risk, ["worst_12m", "yield", "volatility", "vs_6040_return"], (v) => v === null || num(v)) &&
   fields(
     x.checks,
     ["max_drawdown_ok", "yield_ok", "bonds_ok"],
-    (v) => typeof v === "boolean",
+    (v) => v === null || typeof v === "boolean",
   ) &&
   fields(x.run_stats, ["seconds", "llm_calls", "tokens"], num) &&
   obj(x.run_stats) &&
@@ -412,7 +412,7 @@ export function validatePayload(
 export function cached<T>(path: string): T | undefined {
   if (memory.has(path)) return memory.get(path) as T;
   try {
-    const item = localStorage.getItem(`mandate:${path}`);
+    const item = localStorage.getItem(`mandate:v2:${path}`);
     const data = item ? JSON.parse(item) : undefined;
     return validatePayload(path, data) ? (data as T) : undefined;
   } catch {
@@ -424,8 +424,8 @@ export function remember<T>(path: string, data: T) {
   memory.delete("presentation:" + path);
   memory.delete("research:" + path);
   try {
-    localStorage.setItem(`mandate:${path}`, JSON.stringify(data));
-    localStorage.removeItem(`mandate:presentation:${path}`);
+    localStorage.setItem(`mandate:v2:${path}`, JSON.stringify(data));
+    localStorage.removeItem(`mandate:v2:presentation:${path}`);
   } catch {
     /* memory cache still works */
   }
@@ -437,7 +437,7 @@ export function presentation(path: string): Presentation | undefined {
   if (memory.has("presentation:" + path))
     return memory.get("presentation:" + path) as Presentation;
   try {
-    const value = localStorage.getItem(`mandate:presentation:${path}`);
+    const value = localStorage.getItem(`mandate:v2:presentation:${path}`);
     if (value) return JSON.parse(value);
   } catch {
     /* optional */
@@ -464,8 +464,7 @@ export async function request<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
-    if (response.headers.get("X-Mandate-Data") === "synthetic")
-      document.documentElement.dataset.demo = "synthetic";
+
     let data: unknown;
     try {
       data = await response.json();
@@ -531,7 +530,7 @@ export async function request<T>(
           memory.set("presentation:" + path, summary);
           try {
             localStorage.setItem(
-              `mandate:presentation:${path}`,
+              `mandate:v2:presentation:${path}`,
               JSON.stringify(summary),
             );
           } catch {
@@ -577,8 +576,8 @@ export const api = {
   addRule: (id: string, text: string) =>
     request<{ job_id: string }>(paths.rules(id), { rule_text: text }),
   run: (id: string) => request<{ job_id: string }>(paths.run(id), {}),
-  refresh: (ticker: string, signal?: AbortSignal) =>
-    request<{ job_id: string }>(paths.refresh(ticker), {}, signal),
+  refresh: (ticker: string, charityId: string, signal?: AbortSignal) =>
+    request<{ job_id: string }>(paths.refresh(ticker), { charity_id: charityId }, signal),
   job: (id: string, signal?: AbortSignal) =>
     request<Job>(paths.job(id), undefined, signal),
 };

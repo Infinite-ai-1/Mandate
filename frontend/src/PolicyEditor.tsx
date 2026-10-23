@@ -42,15 +42,11 @@ export default function PolicyEditor({
         required
       />
       <p>
-        Saving the policy starts a reassessment for this charity. Existing
+        Saving invalidates prior assessments. Reassessment starts when credentials are configured. Existing
         holdings remain visible and are flagged for review if they no longer
         comply.
       </p>
-      <p className="fixture-policy-note">
-        In the sample preview, use explicit exclusions such as “Exclude TEST” or
-        “Exclude CAPPED”. Unrestricted policy interpretation requires the live
-        AI compiler.
-      </p>
+
       {base === undefined && (
         <p className="notice">
           The policy-update backend has not supplied a revision. Editing cannot

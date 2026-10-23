@@ -83,7 +83,7 @@ def _memo_input(policy: ResolvedPolicy, decisions: list[CompanyDecision], opt) -
 
 def run_charity(charity_id: str = DEFAULT_CHARITY, equities: Optional[list[str]] = None,
                 policies_dir: Path = C.POLICIES_DIR, out_path: Optional[Path] = None,
-                progress: Callable[[str], None] = print) -> dict:
+                progress: Callable[[str], None] = print, policy_text: Optional[str] = None) -> dict:
     t0 = time.time()
     log_offset = C.LLM_LOG.stat().st_size if C.LLM_LOG.exists() else 0
     out_path = out_path or C.RESULTS_DIR / "run.json"
@@ -92,9 +92,12 @@ def run_charity(charity_id: str = DEFAULT_CHARITY, equities: Optional[list[str]]
 
     progress("[1/7] Compiling the policy into rules")
     policy_file = policies_dir / f"{charity_id}.md"
-    if not policy_file.exists():
+    if policy_text is None and not policy_file.exists():
+        policy_file = policies_dir / f"{charity_id}.txt"
+    if policy_text is None and not policy_file.exists():
         raise FileNotFoundError(f"No policy file at {policy_file}")
-    policy_text = policy_file.read_text(encoding="utf-8")
+    if policy_text is None:
+        policy_text = policy_file.read_text(encoding="utf-8")
     policy = compile_policy(policy_text)
     progress(f"      {len(policy.rules)} rules, {len(policy.unverified_rules)} unverified, "
              f"limits assumed: {[k for k in ('min_bonds', 'min_yield', 'worst_year_limit') if getattr(policy.limits, k).origin == 'assumed']}")

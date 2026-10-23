@@ -25,19 +25,19 @@ DEPLOY_MAI = _env("DEPLOY_MAI")
 DEPLOY_EMBED = _env("DEPLOY_EMBED")
 
 FINNHUB_API_KEY = _env("FINNHUB_API_KEY")
-EDGAR_USER_AGENT = _env("EDGAR_USER_AGENT") or _env("SEC_USER_AGENT") or "Mandate Hackathon your.email@example.com"
+EDGAR_USER_AGENT = _env("EDGAR_USER_AGENT") or _env("SEC_USER_AGENT")
 
 DEMO_MODE = _env("DEMO_MODE", "0") == "1"
 
 MODELS = {
-    "chair": DEPLOY_SOL,        # policy compiler + final decision
-    "melchior": DEPLOY_SOL,     # ethics
-    "balthasar": DEPLOY_MAI,    # financial health (reasoning model)
-    "casper": DEPLOY_TERRA_6,   # risk
-    "memo": DEPLOY_SOL,
+    "chair": _env("MODEL_CHAIR") or DEPLOY_SOL,
+    "melchior": _env("MODEL_MELCHIOR") or DEPLOY_SOL,
+    "balthasar": _env("MODEL_BALTHASAR") or DEPLOY_MAI,
+    "casper": _env("MODEL_CASPER") or DEPLOY_TERRA_6,
+    "memo": _env("MODEL_CHAIR") or DEPLOY_SOL,
     "fast": DEPLOY_TERRA_56,    # live rule re-screen
     "backup": DEPLOY_ASTRA,     # used if a deployment fails 4 times
-    "embed": DEPLOY_EMBED,
+    "embed": _env("MODEL_EMBED") or DEPLOY_EMBED,
 }
 REASONING_MODELS = {d for d in (DEPLOY_MAI,) if d}   # no temperature, max_completion_tokens
 

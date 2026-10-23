@@ -11,7 +11,7 @@ def classify_ethics(verdicts: list[Verdict]) -> str:
     """REJECTED_ETHICS if any verified FAIL, else TRUSTEE_REVIEW if any FLAG, else CLEAN."""
     if any(v.verdict == "FAIL" and v.verified for v in verdicts):
         return "REJECTED_ETHICS"
-    if any(v.verdict != "PASS" for v in verdicts):      # FLAG, or an unverified FAIL that slipped through
+    if not verdicts or any(v.verdict != "PASS" or v.verified is not True for v in verdicts):
         return "TRUSTEE_REVIEW"
     return "CLEAN"
 
@@ -28,13 +28,20 @@ def decide_ethics(ticker: str, mel: MelchiorResult) -> Optional[CompanyDecision]
         return CompanyDecision(ticker=ticker, status=status, cap=0.0, veto=v, melchior=mel,
                                reason=f"Breaks rule {v.rule_id}: {v.reason}")
     if status == "TRUSTEE_REVIEW":
-        v = next(v for v in mel.verdicts if v.verdict != "PASS")
+        v = next((v for v in mel.verdicts if v.verdict != "PASS" or v.verified is not True), None)
         return CompanyDecision(ticker=ticker, status=status, cap=0.0, melchior=mel,
-                               reason=f"Needs trustee review on rule {v.rule_id}: {v.reason}")
+                               reason=f"Needs trustee review on rule {v.rule_id}: {v.reason}" if v else "No verified policy checks available.")
     return None
 
 
 def decide_chair(ticker: str, mel: MelchiorResult, fin, risk, ch) -> CompanyDecision:
+    blocked = decide_ethics(ticker, mel)
+    if blocked:
+        return blocked
+    if ch.defaulted or not ch.reasons or ch.unverified or fin.score is None or risk.score is None:
+        return CompanyDecision(ticker=ticker, status="TRUSTEE_REVIEW", cap=0,
+                               melchior=mel, balthasar=fin, casper=risk, chair=ch,
+                               reason="Chair or specialist evidence is incomplete; trustees must review.")
     cap = C.CAP_BY_DECISION[ch.decision]
     return CompanyDecision(ticker=ticker, status="APPROVED" if cap > 0 else "REJECTED_CHAIR", cap=cap,
                            melchior=mel, balthasar=fin, casper=risk, chair=ch,

@@ -188,7 +188,7 @@ export default function Research({
     try {
       const id = resume
         ? jobId
-        : (await api.refresh(stock, next.signal)).job_id;
+        : (await api.refresh(stock, charity, next.signal)).job_id;
       if (!id) throw new Error("The API did not return a research job.");
       setJobId(id);
       await follow(id, stock, next.signal);

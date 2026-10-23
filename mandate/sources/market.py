@@ -26,12 +26,17 @@ def _save_json(path, data: dict) -> None:
 
 
 def load_prices() -> pd.DataFrame:
-    return pd.read_csv(PRICES, index_col=0, parse_dates=True)
+    processed = C.ROOT / "data" / "processed" / "prices.parquet"
+    if PRICES.exists():
+        return pd.read_csv(PRICES, index_col=0, parse_dates=True)
+    if processed.exists():
+        return pd.read_parquet(processed)
+    return pd.DataFrame()
 
 
 def fetch_prices(tickers: list[str], force: bool = False) -> pd.DataFrame:
     """3 years of daily auto-adjusted closes. Only downloads tickers missing from the cache."""
-    have = load_prices() if PRICES.exists() else pd.DataFrame()
+    have = load_prices()
     missing = [t for t in tickers if force or t not in have.columns]
     if missing and not C.DEMO_MODE:
         raw = yf.download(missing, period=f"{C.PRICE_YEARS}y", auto_adjust=True, progress=False)["Close"]

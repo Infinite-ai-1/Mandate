@@ -61,7 +61,7 @@ def _twelvedata_history(ticker):
     return {
         "dates": [v["datetime"] for v in values],
         "adj_close": [float(v["close"]) for v in values],
-        "dividends": [0.0] * len(values),  # Twelve Data's free tier has no dividend series
+        "dividends": [None] * len(values),  # Missing distributions are unknown, not zero.
     }
 
 

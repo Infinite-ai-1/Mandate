@@ -1903,3 +1903,5 @@ html[data-demo="synthetic"] .fixture-policy-note {
     gap: 0;
   }
 }
+
+.paper-banner { padding: 10px 24px; background: #f0ece1; color: #343b35; font-size: 12px; border-bottom: 1px solid #d8d8cb; }

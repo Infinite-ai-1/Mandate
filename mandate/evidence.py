@@ -46,7 +46,16 @@ def build_chunks(ticker: str) -> list[Chunk]:
             text = f"{a.get('headline') or ''}. {a.get('summary') or ''}".strip()
             chunks.append(Chunk(source_id=f"{ticker}-NEWS-{i:03d}", ticker=ticker, kind="news",
                                 section="News", url=a.get("url") or "", date=day, text=text))
-    return chunks
+    # Ingestion branch evidence uses registry IDs. Preserve those IDs and provenance.
+    path = C.ROOT / "data" / "processed" / "chunks" / f"{ticker}.json"
+    if path.exists():
+        import sources
+        for item in json.loads(path.read_text(encoding="utf-8")):
+            source = sources.get(item["source_id"]) or {}
+            chunks.append(Chunk(**{**item, "kind": source.get("kind", "filing"),
+                                  "url": source.get("url", ""), "section": source.get("section", ""),
+                                  "date": item.get("date") or source.get("date") or ""}))
+    return list({c.source_id: c for c in chunks}.values())
 
 
 def save_chunks(ticker: str) -> list[Chunk]:
@@ -74,14 +83,17 @@ def build_index(ticker: str, force: bool = False) -> int:
 def _load(ticker: str) -> tuple[list[Chunk], np.ndarray | None]:
     meta, vec = EMB_DIR / f"{ticker}.json", EMB_DIR / f"{ticker}.npy"
     if not meta.exists():
-        return [], None
+        return build_chunks(ticker), None
     chunks = [Chunk(**c) for c in json.loads(meta.read_text(encoding="utf-8"))]
     return chunks, (np.load(vec) if vec.exists() else None)
 
 
 def get_chunk(source_id: str) -> Chunk | None:
     """Used by verify.py. Source IDs start with the ticker."""
-    chunks, _ = _load(source_id.split("-")[0])
+    import sources
+    source = sources.get(source_id)
+    ticker = source["ticker"] if source else source_id.split("-")[0]
+    chunks, _ = _load(ticker)
     return next((c for c in chunks if c.source_id == source_id), None)
 
 
@@ -116,7 +128,9 @@ def retrieve_text(ticker: str, query: str, keywords: list[str] | None = None, k:
     kws = [w.lower() for w in (keywords or []) if w]
     hits = sorted(((sum(w in c.text.lower() for w in kws), i) for i, c in enumerate(chunks) if i not in picked),
                   reverse=True)
-    picked += [i for score, i in hits if score > 0][:2]
+    picked += [i for score, i in hits if score > 0][:k if vecs is None else 2]
+    if not picked:
+        picked = list(range(min(k, len(chunks))))
     return [chunks[i] for i in picked]
 
 

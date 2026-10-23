@@ -225,7 +225,7 @@ def _lookup(agent: str, system: str, user: str, schema: Type[T], ticker, allow_l
             return key, obj
         except ValueError:
             pass    # cache entry no longer fits the schema: treat as a miss
-    if C.DEMO_MODE and not allow_live:
+    if C.DEMO_MODE:
         who = f"agent '{agent}'" + (f", ticker {ticker}" if ticker else "")
         raise DemoModeCacheMiss(f"DEMO_MODE=1 and no cached reply for {who} (key {key[:10]}). "
                                 "Run once with DEMO_MODE=0 to fill cache/llm/.")

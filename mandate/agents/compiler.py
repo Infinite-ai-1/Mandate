@@ -49,7 +49,7 @@ def resolve(out: CompilerOutput, policy_text: str) -> ResolvedPolicy:
     bad = [r for r in out.rules if r not in good]
     proposals = []
     for i, p in enumerate(out.proposed_mission_conflicts, 1):
-        proposals.append(p.model_copy(update={"id": f"M{i}", "approved": True}))     # pre-approved for the demo
+        proposals.append(p.model_copy(update={"id": f"M{i}", "approved": False}))
     mission = [Rule(id=p.id, clause_ref="charity purpose", type="mission_conflict", text=p.text, keywords=p.keywords)
                for p in proposals if p.approved]
     return ResolvedPolicy(charity=out.charity, purpose_summary=out.purpose_summary, rules=good + mission,
