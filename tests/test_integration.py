@@ -53,6 +53,8 @@ class IntegrationTests(unittest.TestCase):
             policy = self.client.get(f"/api/charities/{cid}/policy").get_json()
             self.assertGreater(len(policy["text"]), 100)
             self.assertEqual(self.client.get(f"/api/charities/{cid}/portfolio").status_code, 409)
+            selection = self.client.get(f"/api/charities/{cid}/selection")
+            self.assertEqual(json.loads(selection.headers["X-Mandate-Presentation"])["analysed_count"], 0)
 
     def test_unknown_routes_and_input_errors_are_json(self):
         for path in ("/api/not-a-route", "/api/jobs/unknown", "/api/charities/unknown/account", "/api/sources/unknown"):

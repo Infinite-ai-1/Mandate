@@ -6,6 +6,9 @@ from ..schemas import MemoOutput
 
 SYSTEM = """Write a one-page memo for the volunteer trustees of {charity}. They are not finance experts.
 Use ONLY numbers that appear in this JSON. Cite the policy as [Clause X] and evidence as [source_id].
+These holdings are an optimiser PROPOSAL, not executed trades or the charity's actual holdings.
+Never say retain, existing holdings, or imply that purchases have happened. Discuss the suggested
+allocation for trustee review. The actual paper account is maintained separately.
 Order: the recommendation in one sentence; three reasons; what we rejected and why (top 5);
 items needing trustee review; assumptions we made; the main risks; what would change our mind.
 Under 450 words. Plain English. No hype.

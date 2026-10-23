@@ -65,6 +65,7 @@ def _memo_input(policy: ResolvedPolicy, decisions: list[CompanyDecision], opt) -
                 **({"rule_id": v.rule_id, "quote": v.quote, "source_id": v.source_id} if v else {})}
     held = {h.ticker: h for h in opt.holdings}
     return {
+        "portfolio_status": "Suggested allocation only; no purchases have occurred",
         "charity": policy.charity, "purpose": policy.purpose_summary,
         "holdings": [{"ticker": h.ticker, "dollars": h.dollars, "shares": h.shares, "weight": round(h.weight, 4),
                       "is_bond": h.is_bond} for h in opt.holdings],
