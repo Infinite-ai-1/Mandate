@@ -49,8 +49,14 @@ def _core_name(name):
     while True:
         stripped = _LEGAL_SUFFIXES.sub("", prev).strip()
         if stripped == prev or not stripped:
-            return prev
+            break
         prev = stripped
+
+    # A name this short ("3M CO" -> "3M") is too generic for EPA/FDA's
+    # near-literal substring search -- it matched 1.2M rows for "3M" alone
+    # (anything containing "3M" as a substring). Keep the fuller original name
+    # instead of over-stripping a name that was already short to begin with.
+    return prev if len(prev) >= 4 else name
 
 
 def _load_universe_names():
